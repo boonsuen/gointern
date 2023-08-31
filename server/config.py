@@ -1,6 +1,0 @@
-customhost = "gointern.cctzlw8div7g.us-east-1.rds.amazonaws.com"
-customuser = ""
-custompass = ""
-customdb = "gointern"
-custombucket = "ohboonsuen-gointern"
-customregion = "us-east-1"

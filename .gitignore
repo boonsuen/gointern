@@ -49,3 +49,4 @@ client/next-env.d.ts
 /server/.coverage
 /server/.pytest_cache
 /server/.mypy_cache
+/server/config.py
