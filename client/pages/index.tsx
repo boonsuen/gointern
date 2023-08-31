@@ -6,7 +6,7 @@ export default function Home() {
       defaultOpenKey="/"
       selectedKey="/"
     >
-      <h1>Hello</h1>
+      <h1>Welcome</h1>
     </Layout>
   );
 }

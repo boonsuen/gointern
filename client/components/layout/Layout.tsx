@@ -1,9 +1,7 @@
-import Link from 'next/link';
-import React, { useState } from 'react';
+import React from 'react';
 import { LogoSvg } from '../svg/Logo.svg';
 import { useRouter } from 'next/router';
-import toast from 'react-hot-toast';
-import { Button, Menu, MenuProps, Layout, Breadcrumb, theme } from 'antd';
+import { Menu, MenuProps, Layout, theme } from 'antd';
 import {
   DesktopOutlined,
   FileOutlined,
@@ -12,7 +10,7 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -35,6 +33,7 @@ const items: MenuItem[] = [
   getItem('Option 2', '/2', <DesktopOutlined />),
   getItem('Student', '/student', <UserOutlined />, [
     getItem('Manage Student', '/student/manage'),
+    getItem('Submit Internship', '/student/submit-internship'),
     getItem('Progress Report', '/student/progress-report'),
   ]),
   getItem('Supervisor', '/sub2', <TeamOutlined />, [
