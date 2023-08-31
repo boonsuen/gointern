@@ -2,7 +2,10 @@ import Layout from '@/components/layout/Layout';
 
 export default function Home() {
   return (
-    <Layout>
+    <Layout
+      defaultOpenKey="/"
+      selectedKey="/"
+    >
       <h1>Hello</h1>
     </Layout>
   );

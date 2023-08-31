@@ -31,41 +31,53 @@ function getItem(
 }
 
 const items: MenuItem[] = [
-  getItem('Option 1', '1', <PieChartOutlined />),
-  getItem('Option 2', '2', <DesktopOutlined />),
-  getItem('Student', 'sub1', <UserOutlined />, [
-    getItem('Tom', '3'),
-    getItem('Bill', '4'),
-    getItem('Alex', '5'),
+  getItem('Home', '/', <PieChartOutlined />),
+  getItem('Option 2', '/2', <DesktopOutlined />),
+  getItem('Student', '/student', <UserOutlined />, [
+    getItem('Manage Student', '/student/manage'),
+    getItem('Progress Report', '/student/progress-report'),
   ]),
-  getItem('Supervisor', 'sub2', <TeamOutlined />, [
-    getItem('Team 1', '6'),
-    getItem('Team 2', '8'),
+  getItem('Supervisor', '/sub2', <TeamOutlined />, [
+    getItem('Manage Supervisor', '/6'),
   ]),
   getItem('Files', '9', <FileOutlined />),
 ];
 
 type LayoutProps = {
   children: React.ReactNode;
+  defaultOpenKey: string;
+  selectedKey: string;
 };
 
-const AppLayout: React.FC<LayoutProps> = ({ children }) => {
+const AppLayout: React.FC<LayoutProps> = ({
+  children,
+  defaultOpenKey,
+  selectedKey,
+}) => {
+  const router = useRouter();
   const {
     token: { colorBgContainer },
   } = theme.useToken();
 
+  const onMenuClick: MenuProps['onClick'] = (e) => {
+    const { key } = e;
+    router.push(key);
+  };
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider breakpoint="md">
+      <Sider breakpoint="md" width={250}>
         <div className="px-5 my-4 flex justify-center">
-          <LogoSvg className="max-w-[100px]" theme="dark" />
+          <LogoSvg theme="dark" />
         </div>
         <Menu
-          theme="light"
+          defaultOpenKeys={[defaultOpenKey]}
+          theme="dark"
           className="sidebar-nav"
-          defaultSelectedKeys={['1']}
+          selectedKeys={[selectedKey]}
           mode="inline"
           items={items}
+          onClick={onMenuClick}
         />
       </Sider>
       <Layout>
