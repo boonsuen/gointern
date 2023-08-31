@@ -1,0 +1,51 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+*/node_modules
+client/.pnp
+client/.pnp.js
+
+# testing
+client/coverage
+
+# next.js
+client/.next/
+client/out/
+
+# production
+client/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+client/.env*.local
+
+# vercel
+.vercel
+
+# typescript
+client/*.tsbuildinfo
+client/next-env.d.ts
+
+# Python virtualenv
+/server/venv
+
+# Visual Studio Code files
+.vscode/*
+
+# Flask
+/server/instance
+/server/.env
+/server/.flaskenv
+/server/.pytest_cache
+/server/__pycache__
+/server/.coverage
+/server/.pytest_cache
+/server/.mypy_cache

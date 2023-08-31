@@ -1,0 +1,6 @@
+customhost = "database-1.cizar3lczvxa.us-east-1.rds.amazonaws.com"
+customuser = ""
+custompass = ""
+customdb = ""
+custombucket = ""
+customregion = "us-east-1"
