@@ -45,7 +45,7 @@ client/next-env.d.ts
 /server/.env
 /server/.flaskenv
 /server/.pytest_cache
-/server/__pycache__
+/server/**/__pycache__
 /server/.coverage
 /server/.pytest_cache
 /server/.mypy_cache
