@@ -3,6 +3,8 @@ import { Button, Form, Input, Modal } from 'antd';
 import clsx from 'clsx';
 import { PlusOutlined } from '@ant-design/icons';
 import { useState } from 'react';
+import { API_URL } from '@/lib/constants';
+import toast from 'react-hot-toast';
 
 interface AddStudentValues {
   studentId: string;
@@ -27,7 +29,7 @@ const AddStudentForm = ({ open, onAdd, onCancel }: AddStudentFormProps) => {
         form
           .validateFields()
           .then((values) => {
-            form.resetFields();
+            // form.resetFields(); TODO
             onAdd(values);
           })
           .catch((info) => {
@@ -36,6 +38,7 @@ const AddStudentForm = ({ open, onAdd, onCancel }: AddStudentFormProps) => {
       }}
       okButtonProps={{
         htmlType: 'submit',
+        className: 'bg-primary',
       }}
       okText="Add"
       onCancel={onCancel}
@@ -95,9 +98,27 @@ export default function ManageStudent() {
     setIsAddStudentModalOpen(true);
   };
 
-  const onAdd = (values: AddStudentValues) => {
-    console.log('Received values of form: ', values);
-    setIsAddStudentModalOpen(false);
+  const onAdd = async (values: AddStudentValues) => {
+    try {
+      const response = await (
+        await fetch(`${API_URL}/students`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(values),
+        })
+      ).json();
+
+      if (!response.success) {
+        return toast.error(response.message || 'Something went wrong');
+      }
+      toast.success('Student added successfully');
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsAddStudentModalOpen(false);
+    }
   };
 
   return (
