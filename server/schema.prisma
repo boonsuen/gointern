@@ -1,0 +1,17 @@
+datasource db {
+  provider = "mysql"
+  url      = "mysql://aws_user:Bait3273@gointern.cctzlw8div7g.us-east-1.rds.amazonaws.com:3306/gointern"
+}
+
+generator db {
+  provider             = "prisma-client-py"
+  recursive_type_depth = 5
+  interface = "sync"
+}
+
+model Student {
+  studentId String @id
+  fullName  String
+  email     String @unique
+  createdAt DateTime @default(now())
+}
