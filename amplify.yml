@@ -1,0 +1,19 @@
+appRoot: client
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+    # IMPORTANT - Please verify your build commands
+    build:
+      commands: 
+        - npm run build
+  artifacts:
+    # IMPORTANT - Please verify your build output directory
+    baseDirectory: out
+    files:
+      - '**/*'
+  cache:
+    paths: 
+      - node_modules/**/*
