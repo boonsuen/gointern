@@ -3,11 +3,13 @@ import { LogoSvg } from '../svg/Logo.svg';
 import { useRouter } from 'next/router';
 import { Menu, MenuProps, Layout, theme } from 'antd';
 import {
-  DesktopOutlined,
-  FileOutlined,
-  PieChartOutlined,
+  SettingOutlined,
+  NotificationOutlined,
+  HomeOutlined,
   TeamOutlined,
+  FlagOutlined,
   UserOutlined,
+  FileTextOutlined,
 } from '@ant-design/icons';
 
 const { Content, Footer, Sider } = Layout;
@@ -29,17 +31,30 @@ function getItem(
 }
 
 const items: MenuItem[] = [
-  getItem('Home', '/', <PieChartOutlined />),
-  getItem('Option 2', '/2', <DesktopOutlined />),
+  getItem('Home', '/', <HomeOutlined />),
   getItem('Student', '/student', <UserOutlined />, [
+    getItem('Login / Signup', '/student/auth'),
     getItem('Manage Student', '/student/manage'),
     getItem('Submit Internship', '/student/submit-internship'),
     getItem('Progress Report', '/student/progress-report'),
   ]),
-  getItem('Supervisor', '/sub2', <TeamOutlined />, [
-    getItem('Manage Supervisor', '/6'),
+  getItem('Supervisor', '/supervisor', <TeamOutlined />, [
+    getItem('Login / Signup', '/supervisor/auth'),
+    getItem('My Students', '/supervisor/my-students'),
+    getItem('Progress Report', '/supervisor/progress-report'),
   ]),
-  getItem('Files', '9', <FileOutlined />),
+  getItem('Company', '/company', <FlagOutlined />, [
+    getItem('Login / Signup', '/company/auth'),
+    getItem('Manage Jobs', '/company/manage-jobs'),
+  ]),
+  getItem('Admin', '/admin', <SettingOutlined />, [
+    getItem('Login', '/admin/auth'),
+    getItem('Manage Announcement', '/admin/manage-announcement'),
+    getItem('Approve Internship', '/admin/approve-internship'),
+    getItem('Approve Company', '/admin/approve-company'),
+  ]),
+  getItem('Announcement', '/announcement', <NotificationOutlined />),
+  getItem('Jobboard', '/jobboard', <FileTextOutlined />),
 ];
 
 type LayoutProps = {
