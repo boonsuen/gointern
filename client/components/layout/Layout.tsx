@@ -79,7 +79,7 @@ const AppLayout: React.FC<LayoutProps> = ({
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout className="!flex-row" style={{ minHeight: '100vh' }}>
       <Sider breakpoint="md" width={250}>
         <div className="px-5 my-4 flex justify-center">
           <LogoSvg theme="dark" />
@@ -98,8 +98,8 @@ const AppLayout: React.FC<LayoutProps> = ({
         <Content style={{ margin: '0' }}>
           <div
             style={{
-              padding: 24,
-              minHeight: 360,
+              padding: '24px 24px 48px',
+              height: '100%',
               background: colorBgContainer,
             }}
           >
