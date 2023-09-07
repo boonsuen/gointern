@@ -6,13 +6,18 @@ datasource db {
 generator db {
   provider             = "prisma-client-py"
   recursive_type_depth = 5
-  interface = "sync"
+  interface            = "sync"
 }
 
 model Student {
-  studentId String @id
+  studentId String   @id
   fullName  String
-  email     String @unique
-  icNumber  String @unique
+  email     String   @unique
+  icNumber  String   @unique
   createdAt DateTime @default(now())
+}
+
+model Admin {
+  email     String   @unique
+  password  String
 }

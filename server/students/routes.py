@@ -87,7 +87,7 @@ def studentLogin():
             200,
         )
         response.set_cookie(
-            "access_token_cookie_student",
+            "access_token_student",
             access_token,
             httponly=True,
             max_age=60 * 60 * 24 * 7,
@@ -101,14 +101,12 @@ def studentLogin():
 @students.route("/me", methods=["POST"])
 def studentMe():
     try:
-        token = request.cookies.get("access_token_cookie_student")
+        token = request.cookies.get("access_token_student")
         if not token or token == "":
             return (
                 jsonify({"message": "Student is not logged in", "success": False}),
                 200,
             )
-
-        print(type(token))
 
         decoded = jwt.decode(
             token, current_app.config["JWT_SECRET_KEY"], algorithms=["HS256"]
@@ -150,7 +148,7 @@ def studentLogout():
             200,
         )
         response.set_cookie(
-            "access_token_cookie_student",
+            "access_token_student",
             "",
             httponly=True,
             max_age=0,

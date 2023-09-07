@@ -9,6 +9,7 @@ from config import *
 from prisma import Prisma, register
 
 from students.routes import students
+from admins.routes import admins
 
 db = Prisma()
 db.connect()
@@ -22,6 +23,7 @@ cors = CORS(app, supports_credentials=True)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 app.register_blueprint(students, url_prefix="/api/students")
+app.register_blueprint(admins, url_prefix="/api/admins")
 
 bucket = custombucket
 region = customregion
