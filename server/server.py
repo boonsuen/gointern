@@ -1,5 +1,12 @@
 from flask import Flask, Response, jsonify, render_template, request
 from flask_cors import CORS
+from flask_jwt_extended import (
+    JWTManager,
+    create_access_token,
+    jwt_required,
+    get_jwt_identity,
+)
+from flask_bcrypt import Bcrypt
 import os
 import boto3
 from config import *
@@ -12,8 +19,11 @@ db.connect()
 register(db)
 
 app = Flask(__name__)
-cors = CORS(app, supports_credentials=True)
 app.config["CORS_HEADERS"] = "Content-Type"
+app.config["SECRET_KEY"] = "super-secret"
+cors = CORS(app, supports_credentials=True)
+bcrypt = Bcrypt(app)
+jwt = JWTManager(app)
 app.register_blueprint(students, url_prefix="/api/students")
 
 bucket = custombucket

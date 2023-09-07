@@ -13,5 +13,6 @@ model Student {
   studentId String @id
   fullName  String
   email     String @unique
+  icNumber  String @unique
   createdAt DateTime @default(now())
 }
