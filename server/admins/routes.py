@@ -45,6 +45,7 @@ def adminLogin():
             "access_token_admin",
             access_token,
             httponly=True,
+            secure=current_app.config["FLASK_ENV"] == "production",
             max_age=60 * 60 * 24 * 7,
         )
 
@@ -86,6 +87,7 @@ def adminMe():
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500
 
+
 @admins.route("/logout", methods=["POST"])
 def adminLogout():
     try:
@@ -102,6 +104,7 @@ def adminLogout():
             "access_token_admin",
             "",
             httponly=True,
+            secure=current_app.config["FLASK_ENV"] == "production",
             max_age=0,
         )
 

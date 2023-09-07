@@ -90,6 +90,7 @@ def studentLogin():
             "access_token_student",
             access_token,
             httponly=True,
+            secure=current_app.config["FLASK_ENV"] == "production",
             max_age=60 * 60 * 24 * 7,
         )
 
@@ -151,6 +152,7 @@ def studentLogout():
             "access_token_student",
             "",
             httponly=True,
+            secure=current_app.config["FLASK_ENV"] == "production",
             max_age=0,
         )
 
