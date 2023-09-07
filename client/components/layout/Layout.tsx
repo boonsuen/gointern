@@ -98,11 +98,18 @@ const menuItems: MenuItem[] = [
     getItem('Approve Company', '/admin/approve-company'),
   ]),
   getItem('Announcement', '/announcement', <NotificationOutlined />),
-  getItem('Jobboard', '/jobboard', <FileTextOutlined />),
+  getItem('Job Board', '/jobboard', <FileTextOutlined />),
 ];
 
 type LayoutProps = {
-  defaultOpenKey: '/' | '/student' | '/supervisor' | '/company' | '/admin';
+  defaultOpenKey:
+    | '/'
+    | '/student'
+    | '/supervisor'
+    | '/company'
+    | '/admin'
+    | '/announcement'
+    | '/jobboard';
   selectedKey: string;
   renderContent?: (user: StudentUser) => React.ReactNode;
   children?: React.ReactNode;
