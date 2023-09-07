@@ -1,5 +1,5 @@
 from flask import Blueprint, current_app, jsonify, make_response, request
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, unset_jwt_cookies
 import jwt
 import prisma
 from prisma.models import Student
@@ -133,5 +133,29 @@ def studentMe():
                 },
             }
         )
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+
+
+@students.route("/logout", methods=["POST"])
+def studentLogout():
+    try:
+        response = make_response(
+            jsonify(
+                {
+                    "message": "Student logged out successfully",
+                    "success": True,
+                }
+            ),
+            200,
+        )
+        response.set_cookie(
+            "access_token_cookie_student",
+            "",
+            httponly=True,
+            max_age=0,
+        )
+
+        return response
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500
