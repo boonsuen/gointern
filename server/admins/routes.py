@@ -45,7 +45,8 @@ def adminLogin():
             "access_token_admin",
             access_token,
             httponly=True,
-            secure=current_app.config["FLASK_ENV"] == "production",
+            secure=True,
+            samesite="None",
             max_age=60 * 60 * 24 * 7,
         )
 
@@ -104,7 +105,8 @@ def adminLogout():
             "access_token_admin",
             "",
             httponly=True,
-            secure=current_app.config["FLASK_ENV"] == "production",
+            secure=True,
+            samesite="None",
             max_age=0,
         )
 
