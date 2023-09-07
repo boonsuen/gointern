@@ -1,11 +1,7 @@
-from flask import Flask, Response, jsonify, render_template, request
+from datetime import timedelta
+from flask import Flask, jsonify
 from flask_cors import CORS
-from flask_jwt_extended import (
-    JWTManager,
-    create_access_token,
-    jwt_required,
-    get_jwt_identity,
-)
+from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
 import os
 import boto3
@@ -20,7 +16,8 @@ register(db)
 
 app = Flask(__name__)
 app.config["CORS_HEADERS"] = "Content-Type"
-app.config["SECRET_KEY"] = "super-secret"
+app.config["JWT_SECRET_KEY"] = "super-secret"
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=7)
 cors = CORS(app, supports_credentials=True)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
@@ -28,12 +25,6 @@ app.register_blueprint(students, url_prefix="/api/students")
 
 bucket = custombucket
 region = customregion
-
-# db_conn = connections.Connection(
-#     host=customhost, port=3306, user=customuser, password=custompass, db=customdb
-# )
-# output = {}
-# table = "employee"
 
 
 @app.route("/api/hello", methods=["GET", "POST"])
