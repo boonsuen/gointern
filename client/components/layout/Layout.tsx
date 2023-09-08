@@ -31,6 +31,16 @@ export type StudentUser = {
   icNumber: string;
 };
 
+export type SupervisorUser = {
+  email: string;
+  fullName: string;
+};
+
+export type CompanyUser = {
+  email: string;
+  companyName: string;
+};
+
 export type AdminUser = {
   email: string;
 };
@@ -89,7 +99,9 @@ type LayoutProps = {
     | '/announcement'
     | '/jobboard';
   selectedKey: string;
-  renderContent?: (user: StudentUser | AdminUser) => React.ReactNode;
+  renderContent?: (
+    user: StudentUser | SupervisorUser | CompanyUser | AdminUser
+  ) => React.ReactNode;
   children?: React.ReactNode;
 };
 
@@ -101,7 +113,9 @@ const AppLayout: React.FC<LayoutProps> = ({
 }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<StudentUser | AdminUser | null>(null);
+  const [user, setUser] = useState<
+    StudentUser | SupervisorUser | CompanyUser | AdminUser | null
+  >(null);
 
   const {
     token: { colorBgContainer },
@@ -123,6 +137,8 @@ const AppLayout: React.FC<LayoutProps> = ({
       entity = 'supervisors';
     } else if (defaultOpenKey === '/company') {
       entity = 'companies';
+    } else {
+      return;
     }
 
     const checkAuth = async () => {

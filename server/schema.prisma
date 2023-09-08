@@ -17,7 +17,21 @@ model Student {
   createdAt DateTime @default(now())
 }
 
+model Supervisor {
+  email      String   @id
+  fullName   String
+  password   String
+  createdAt  DateTime @default(now())
+}
+
+model Company {
+  email       String   @id
+  companyName String
+  password    String
+  createdAt   DateTime @default(now())
+}
+
 model Admin {
-  email     String   @unique
-  password  String
+  email    String @unique
+  password String
 }
