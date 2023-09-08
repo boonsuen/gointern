@@ -81,9 +81,9 @@ const menuItems: MenuItem[] = [
   getItem('Admin', '/admin', <SettingOutlined />, [
     getItem('Login', '/admin/auth'),
     getItem('Manage Announcement', '/admin/manage-announcement'),
-    getItem('Approve Internship', '/admin/approve-internship'),
-    getItem('Approve Supervisor', '/admin/approve-supervisor'),
-    getItem('Approve Company', '/admin/approve-company'),
+    getItem('Internship Submission', '/admin/internship-submission'),
+    getItem('Supervisor List', '/admin/supervisor-list'),
+    getItem('Company List', '/admin/company-list'),
   ]),
   getItem('Announcement', '/announcement', <NotificationOutlined />),
   getItem('Job Board', '/jobboard', <FileTextOutlined />),
