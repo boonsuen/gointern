@@ -55,7 +55,7 @@ def adminLogin():
         return jsonify({"message": str(e), "success": False})
 
 
-@admins.route("/me", methods=["POST"])
+@admins.route("/me", methods=["GET"])
 def adminMe():
     try:
         token = request.cookies.get("access_token_admin")

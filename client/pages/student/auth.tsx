@@ -1,9 +1,8 @@
 import Layout, { StudentUser } from '@/components/layout/Layout';
 import { API_URL } from '@/lib/constants';
-import { Button } from 'antd';
+import { Button, Tooltip } from 'antd';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
-import toast from 'react-hot-toast';
 
 export default function StudentAuthPage() {
   const router = useRouter();
@@ -77,10 +76,27 @@ export default function StudentAuthPage() {
                     {user.fullName}
                   </strong>
                 </div>
-                <div className="py-2 flex gap-5 justify-between">
+                <div className="border-b py-2 flex gap-5 justify-between">
                   <span className="text-sm text-slate-700">IC Number</span>
                   <strong className="text-sm text-slate-700">
                     {user.icNumber}
+                  </strong>
+                </div>
+                <div className="py-2 flex gap-5 justify-between">
+                  <span className="text-sm text-slate-700">Supervisor</span>
+                  <strong className="text-sm text-slate-700">
+                    {user.supervisor ? (
+                      <Tooltip
+                        title={user.supervisor.email}
+                        placement="bottomLeft"
+                      >
+                        <span className="text-primary">
+                          {user.supervisor.fullName}
+                        </span>
+                      </Tooltip>
+                    ) : (
+                      <span>Not yet assigned</span>
+                    )}
                   </strong>
                 </div>
               </div>

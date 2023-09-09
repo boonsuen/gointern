@@ -2,9 +2,9 @@ from flask import Blueprint, current_app, jsonify, make_response, request
 from flask_jwt_extended import create_access_token, unset_jwt_cookies
 import jwt
 import prisma
-from prisma.models import Supervisor
+from prisma.models import Supervisor, Student
 
-from auth_middleware import admin_token_required
+from auth_middleware import admin_token_required, supervisor_token_required
 
 supervisors = Blueprint("supervisors", __name__)
 
@@ -77,6 +77,7 @@ def supervisorLogin():
                     "data": {
                         "email": supervisor.email,
                         "fullName": supervisor.fullName,
+                        "isApproved": supervisor.isApproved,
                     },
                 }
             ),
@@ -96,7 +97,7 @@ def supervisorLogin():
         return jsonify({"message": str(e), "success": False})
 
 
-@supervisors.route("/me", methods=["POST"])
+@supervisors.route("/me", methods=["GET"])
 def supervisorMe():
     try:
         token = request.cookies.get("access_token_supervisor")
@@ -157,13 +158,12 @@ def supervisorLogout():
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500
 
+
 @supervisors.route("", methods=["GET"])
 @admin_token_required
 def getSupervisors(user):
     try:
-        supervisors = Supervisor.prisma().find_many(
-            order={"createdAt": 'desc'}
-        )
+        supervisors = Supervisor.prisma().find_many(order={"createdAt": "desc"})
         return jsonify(
             {
                 "message": "Supervisors fetched successfully",
@@ -181,7 +181,8 @@ def getSupervisors(user):
         )
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500
-    
+
+
 @supervisors.route("/approve", methods=["POST"])
 @admin_token_required
 def approveSupervisor(user):
@@ -200,12 +201,89 @@ def approveSupervisor(user):
             where={"email": email},
             data={
                 "isApproved": True,
-            }
+            },
         )
 
         return jsonify(
             {
                 "message": "Supervisor approved successfully",
+                "success": True,
+            }
+        )
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+
+
+@supervisors.route("/assign-student", methods=["POST"])
+@supervisor_token_required
+def assignStudent(user):
+    try:
+        data = request.json
+
+        if data is None:
+            return
+
+        studentId = data.get("studentId")
+
+        if studentId is None:
+            return {"message": "Missing required fields", "success": False}
+
+        if (
+            Student.prisma()
+            .find_unique(where={"studentId": studentId}, include={"supervisor": True})
+            .supervisor
+            is not None
+        ):
+            return {
+                "message": "Student is already assigned to a supervisor",
+                "success": False,
+            }
+
+        student = Student.prisma().update(
+            where={"studentId": studentId},
+            data={"supervisor": {"connect": {"email": user.email}}},
+        )
+
+        return jsonify(
+            {
+                "message": "Student assigned successfully",
+                "success": True,
+                "data": {
+                    "studentId": student.studentId,
+                    "email": student.email,
+                    "fullName": student.fullName,
+                    "icNumber": student.icNumber,
+                },
+            }
+        )
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+
+
+@supervisors.route("/my-students", methods=["GET"])
+@supervisor_token_required
+def getMyStudents(user):
+    try:
+        students = Student.prisma().find_many(
+            where={"supervisorEmail": user.email}, include={"supervisor": True}
+        )
+
+        return jsonify(
+            {
+                "message": "Students fetched successfully",
+                "data": [
+                    {
+                        "studentId": student.studentId,
+                        "email": student.email,
+                        "fullName": student.fullName,
+                        "icNumber": student.icNumber,
+                        "supervisor": {
+                            "email": student.supervisor.email,
+                            "fullName": student.supervisor.fullName,
+                        },
+                    }
+                    for student in students
+                ],
                 "success": True,
             }
         )

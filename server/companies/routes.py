@@ -77,6 +77,7 @@ def companyLogin():
                     "data": {
                         "email": company.email,
                         "companyName": company.companyName,
+                        "isApproved": company.isApproved,
                     },
                 }
             ),
@@ -96,7 +97,7 @@ def companyLogin():
         return jsonify({"message": str(e), "success": False})
 
 
-@companies.route("/me", methods=["POST"])
+@companies.route("/me", methods=["GET"])
 def companyMe():
     try:
         token = request.cookies.get("access_token_company")
@@ -162,9 +163,7 @@ def companyLogout():
 @admin_token_required
 def getCompanies(user):
     try:
-        companies = Company.prisma().find_many(
-            order={"createdAt": 'desc'}
-        )
+        companies = Company.prisma().find_many(order={"createdAt": "desc"})
         return jsonify(
             {
                 "message": "Companies fetched successfully",
@@ -182,7 +181,8 @@ def getCompanies(user):
         )
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500
-    
+
+
 @companies.route("/approve", methods=["POST"])
 @admin_token_required
 def approveCompany(user):
@@ -201,7 +201,7 @@ def approveCompany(user):
             where={"email": email},
             data={
                 "isApproved": True,
-            }
+            },
         )
 
         return jsonify(

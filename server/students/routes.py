@@ -4,6 +4,8 @@ import jwt
 import prisma
 from prisma.models import Student
 
+from auth_middleware import supervisor_token_required
+
 students = Blueprint("students", __name__)
 
 
@@ -60,13 +62,22 @@ def studentLogin():
         if email is None or icNumber is None:
             return {"message": "Missing required fields", "success": False}
 
-        student = Student.prisma().find_unique(where={"email": email})
+        student = Student.prisma().find_unique(
+            where={"email": email}, include={"supervisor": True}
+        )
 
         if student is None:
             return jsonify({"message": "Student not found", "success": False})
 
         if student.icNumber != icNumber:
             return jsonify({"message": "Invalid IC Number", "success": False})
+
+        supervisor = None
+        if student.supervisor is not None:
+            supervisor = {
+                "fullName": student.supervisor.fullName,
+                "email": student.supervisor.email,
+            }
 
         # Create access token
         access_token = create_access_token(identity=student.email, expires_delta=False)
@@ -81,6 +92,7 @@ def studentLogin():
                         "fullName": student.fullName,
                         "email": student.email,
                         "icNumber": student.icNumber,
+                        "supervisor": supervisor,
                     },
                 }
             ),
@@ -100,7 +112,7 @@ def studentLogin():
         return jsonify({"message": str(e), "success": False})
 
 
-@students.route("/me", methods=["POST"])
+@students.route("/me", methods=["GET"])
 def studentMe():
     try:
         token = request.cookies.get("access_token_student")
@@ -113,13 +125,22 @@ def studentMe():
         decoded = jwt.decode(
             token, current_app.config["JWT_SECRET_KEY"], algorithms=["HS256"]
         )
-        user = Student.prisma().find_unique(where={"email": decoded["sub"]})
+        user = Student.prisma().find_unique(
+            where={"email": decoded["sub"]}, include={"supervisor": True}
+        )    
         if user is None:
             return {
                 "message": "Unauthorized student",
                 "data": None,
                 "success": False,
             }, 401
+        
+        supervisor = None
+        if user.supervisor is not None:
+            supervisor = {
+                "email": user.supervisor.email,
+                "fullName": user.supervisor.fullName,
+            }
 
         return jsonify(
             {
@@ -130,6 +151,7 @@ def studentMe():
                     "fullName": user.fullName,
                     "email": user.email,
                     "icNumber": user.icNumber,
+                    "supervisor": supervisor,
                 },
             }
         )
@@ -159,5 +181,30 @@ def studentLogout():
         )
 
         return response
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+
+
+@students.route("", methods=["GET"])
+@supervisor_token_required
+def getStudents(user):
+    try:
+        students = Student.prisma().find_many(order={"createdAt": "desc"})
+        return jsonify(
+            {
+                "message": "Students fetched successfully",
+                "success": True,
+                "data": [
+                    {
+                        "studentId": student.studentId,
+                        "fullName": student.fullName,
+                        "email": student.email,
+                        "icNumber": student.icNumber,
+                        "createdAt": student.createdAt.isoformat(),
+                    }
+                    for student in students
+                ],
+            }
+        )
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500

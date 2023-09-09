@@ -29,6 +29,10 @@ export type StudentUser = {
   fullName: string;
   email: string;
   icNumber: string;
+  supervisor: {
+    fullName: string;
+    email: string;
+  } | null;
 };
 
 export type SupervisorUser = {
@@ -147,7 +151,7 @@ const AppLayout: React.FC<LayoutProps> = ({
       try {
         const response = await (
           await fetch(`${API_URL}/${entity}/me`, {
-            method: 'POST',
+            method: 'GET',
             headers: {
               'Content-Type': 'application/json',
             },
