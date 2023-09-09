@@ -21,6 +21,7 @@ model Supervisor {
   email      String   @id
   fullName   String
   password   String
+  isApproved Boolean  @default(false)
   createdAt  DateTime @default(now())
 }
 
@@ -28,6 +29,7 @@ model Company {
   email       String   @id
   companyName String
   password    String
+  isApproved  Boolean  @default(false)
   createdAt   DateTime @default(now())
 }
 

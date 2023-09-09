@@ -4,6 +4,8 @@ import jwt
 import prisma
 from prisma.models import Company
 
+from auth_middleware import admin_token_required
+
 companies = Blueprint("companies", __name__)
 
 
@@ -151,5 +153,28 @@ def companyLogout():
         )
 
         return response
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+
+
+@companies.route("", methods=["GET"])
+@admin_token_required
+def getCompanies(user):
+    try:
+        companies = Company.prisma().find_many()
+        return jsonify(
+            {
+                "message": "Companies fetched successfully",
+                "data": [
+                    {
+                        "email": company.email,
+                        "companyName": company.companyName,
+                        "isApproved": company.isApproved,
+                    }
+                    for company in companies
+                ],
+                "success": True,
+            }
+        )
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500
