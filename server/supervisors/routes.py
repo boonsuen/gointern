@@ -4,6 +4,8 @@ import jwt
 import prisma
 from prisma.models import Supervisor
 
+from auth_middleware import admin_token_required
+
 supervisors = Blueprint("supervisors", __name__)
 
 
@@ -151,5 +153,60 @@ def supervisorLogout():
         )
 
         return response
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+
+@supervisors.route("", methods=["GET"])
+@admin_token_required
+def getSupervisors(user):
+    try:
+        supervisors = Supervisor.prisma().find_many(
+            order={"createdAt": 'desc'}
+        )
+        return jsonify(
+            {
+                "message": "Supervisors fetched successfully",
+                "data": [
+                    {
+                        "email": supervisor.email,
+                        "fullName": supervisor.fullName,
+                        "isApproved": supervisor.isApproved,
+                        "createdAt": supervisor.createdAt.isoformat(),
+                    }
+                    for supervisor in supervisors
+                ],
+                "success": True,
+            }
+        )
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+    
+@supervisors.route("/approve", methods=["POST"])
+@admin_token_required
+def approveSupervisor(user):
+    try:
+        data = request.json
+
+        if data is None:
+            return
+
+        email = data.get("email")
+
+        if email is None:
+            return {"message": "Missing required fields", "success": False}
+
+        supervisor = Supervisor.prisma().update(
+            where={"email": email},
+            data={
+                "isApproved": True,
+            }
+        )
+
+        return jsonify(
+            {
+                "message": "Supervisor approved successfully",
+                "success": True,
+            }
+        )
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500

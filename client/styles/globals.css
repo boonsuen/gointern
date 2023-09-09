@@ -24,8 +24,8 @@
 
 .ant-table-filter-dropdown-btns .ant-btn-primary {
   @apply !bg-primary;
+}
 
-  &:hover {
-    @apply !bg-primary-hover;
-  }
+.ant-table-filter-dropdown-btns .ant-btn-primary:hover {
+  @apply !bg-primary-hover;
 }
