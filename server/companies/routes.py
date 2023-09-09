@@ -161,7 +161,9 @@ def companyLogout():
 @admin_token_required
 def getCompanies(user):
     try:
-        companies = Company.prisma().find_many()
+        companies = Company.prisma().find_many(
+            order={"createdAt": 'desc'}
+        )
         return jsonify(
             {
                 "message": "Companies fetched successfully",
@@ -170,9 +172,40 @@ def getCompanies(user):
                         "email": company.email,
                         "companyName": company.companyName,
                         "isApproved": company.isApproved,
+                        "createdAt": company.createdAt.isoformat(),
                     }
                     for company in companies
                 ],
+                "success": True,
+            }
+        )
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+    
+@companies.route("/approve", methods=["POST"])
+@admin_token_required
+def approveCompany(user):
+    try:
+        data = request.json
+
+        if data is None:
+            return
+
+        email = data.get("email")
+
+        if email is None:
+            return {"message": "Missing required fields", "success": False}
+
+        company = Company.prisma().update(
+            where={"email": email},
+            data={
+                "isApproved": True,
+            }
+        )
+
+        return jsonify(
+            {
+                "message": "Company approved successfully",
                 "success": True,
             }
         )
