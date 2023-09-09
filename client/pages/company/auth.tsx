@@ -1,6 +1,6 @@
 import Layout, { CompanyUser } from '@/components/layout/Layout';
 import { API_URL } from '@/lib/constants';
-import { Button } from 'antd';
+import { Button, Tag } from 'antd';
 import clsx from 'clsx';
 import { useRouter } from 'next/router';
 
@@ -64,11 +64,22 @@ export default function CompanyAuthPage() {
                     {user.email}
                   </strong>
                 </div>
-                <div className="py-2 flex gap-5 justify-between">
+                <div className="border-b py-2 flex gap-5 justify-between">
                   <span className="text-sm text-slate-700">Company Name</span>
                   <strong className="text-sm text-slate-700">
                     {user.companyName}
                   </strong>
+                </div>
+                <div className="py-2 flex gap-5 justify-between">
+                  <span className="text-sm text-slate-700">
+                    Approval Status
+                  </span>
+                  <Tag
+                    className="m-0"
+                    color={user.isApproved ? 'green' : 'red'}
+                  >
+                    {user.isApproved ? 'Approved' : 'Not Approved'}
+                  </Tag>
                 </div>
               </div>
               <Button

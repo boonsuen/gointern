@@ -124,6 +124,7 @@ def supervisorMe():
                 "data": {
                     "email": user.email,
                     "fullName": user.fullName,
+                    "isApproved": user.isApproved,
                 },
             }
         )

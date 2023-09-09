@@ -124,6 +124,7 @@ def companyMe():
                 "data": {
                     "email": user.email,
                     "companyName": user.companyName,
+                    "isApproved": user.isApproved,
                 },
             }
         )

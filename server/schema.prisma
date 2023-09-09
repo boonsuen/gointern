@@ -10,19 +10,22 @@ generator db {
 }
 
 model Student {
-  studentId String   @id
-  fullName  String
-  email     String   @unique
-  icNumber  String   @unique
-  createdAt DateTime @default(now())
+  studentId       String      @id
+  fullName        String
+  email           String      @unique
+  icNumber        String      @unique
+  createdAt       DateTime    @default(now())
+  supervisor      Supervisor? @relation(fields: [supervisorEmail], references: [email])
+  supervisorEmail String?
 }
 
 model Supervisor {
-  email      String   @id
+  email      String    @id
   fullName   String
   password   String
-  isApproved Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  isApproved Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  students   Student[]
 }
 
 model Company {

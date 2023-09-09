@@ -34,11 +34,13 @@ export type StudentUser = {
 export type SupervisorUser = {
   email: string;
   fullName: string;
+  isApproved: boolean;
 };
 
 export type CompanyUser = {
   email: string;
   companyName: string;
+  isApproved: boolean;
 };
 
 export type AdminUser = {
