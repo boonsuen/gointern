@@ -183,8 +183,20 @@ const AppLayout: React.FC<LayoutProps> = ({
   }, []);
 
   return (
-    <Layout className="!flex-row" style={{ minHeight: '100vh' }}>
-      <Sider breakpoint="md" width={250} className="pb-6">
+    <Layout hasSider className="!flex-row" style={{ minHeight: '100vh' }}>
+      <Sider
+        breakpoint="md"
+        width={250}
+        style={{
+          overflow: 'auto',
+          height: '100vh',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+        }}
+        className="pb-6"
+      >
         <div className="px-5 my-4 flex justify-center">
           <LogoSvg theme="dark" />
         </div>
@@ -198,8 +210,8 @@ const AppLayout: React.FC<LayoutProps> = ({
           onClick={onMenuClick}
         />
       </Sider>
-      <Layout>
-        <Content style={{ margin: '0' }}>
+      <Layout className="site-layout ml-[80px] md:ml-[250px]">
+        <Content style={{ margin: '24px 16px 0', overflow: 'initial' }}>
           <div
             style={{
               padding: '24px 24px 48px',
