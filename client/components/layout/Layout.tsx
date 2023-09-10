@@ -71,7 +71,6 @@ const menuItems: MenuItem[] = [
   getItem('Home', '/', <HomeOutlined />),
   getItem('Student', '/student', <UserOutlined />, [
     getItem('Login / Signup', '/student/auth'),
-    getItem('Manage Student', '/student/manage'),
     getItem('Submit Internship', '/student/submit-internship'),
     getItem('Progress Report', '/student/progress-report'),
   ]),
