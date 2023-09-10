@@ -17,6 +17,7 @@ model Student {
   createdAt       DateTime    @default(now())
   supervisor      Supervisor? @relation(fields: [supervisorEmail], references: [email])
   supervisorEmail String?
+  internship      Internship?
 }
 
 model Supervisor {
@@ -29,14 +30,30 @@ model Supervisor {
 }
 
 model Company {
-  email       String   @id
+  email       String       @id
   companyName String
   password    String
-  isApproved  Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  isApproved  Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  internships Internship[]
 }
 
 model Admin {
   email    String @unique
   password String
+}
+
+model Internship {
+  id                 String           @id @default(uuid())
+  startDate          DateTime
+  endDate            DateTime
+  status             String
+  allowance          Float
+  comSupervisorName  String
+  comSupervisorEmail String
+  createdAt          DateTime         @default(now())
+  student            Student          @relation(fields: [studentId], references: [studentId])
+  studentId          String           @unique
+  company            Company          @relation(fields: [companyId], references: [email])
+  companyId          String
 }
