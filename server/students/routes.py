@@ -4,7 +4,7 @@ import jwt
 import prisma
 from prisma.models import Student
 
-from auth_middleware import supervisor_token_required
+from auth_middleware import supervisor_token_required, student_token_required
 
 students = Blueprint("students", __name__)
 
@@ -127,14 +127,14 @@ def studentMe():
         )
         user = Student.prisma().find_unique(
             where={"email": decoded["sub"]}, include={"supervisor": True}
-        )    
+        )
         if user is None:
             return {
                 "message": "Unauthorized student",
                 "data": None,
                 "success": False,
             }, 401
-        
+
         supervisor = None
         if user.supervisor is not None:
             supervisor = {
@@ -206,5 +206,63 @@ def getStudents(user):
                 ],
             }
         )
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+
+
+@students.route("submit-internship", methods=["POST"])
+@student_token_required
+def submitInternship(user):
+    try:
+        data = request.json
+
+        if data is None:
+            return
+
+        startDate = data.get("startDate")
+        endDate = data.get("endDate")
+        companyEmail = data.get("companyEmail")
+        allowance = data.get("allowance")
+        comSupervisorName = data.get("comSupervisorName")
+        comSupervisorEmail = data.get("comSupervisorEmail")
+
+        if (
+            startDate is None
+            or endDate is None
+            or companyEmail is None
+            or allowance is None
+            or comSupervisorName is None
+            or comSupervisorEmail is None
+        ):
+            return {"message": "Missing required fields", "success": False}
+
+        student = Student.prisma().find_unique(where={"email": user.email})
+
+        if student is None:
+            return {"message": "Student not found", "success": False}
+
+        student = Student.prisma().update(
+            where={"email": user.email},
+            data={
+                "internship": {
+                    "create": {
+                        "startDate": startDate,
+                        "endDate": endDate,
+                        "allowance": allowance,
+                        "company": {"connect": {"email": companyEmail}},
+                        "comSupervisorName": comSupervisorName,
+                        "comSupervisorEmail": comSupervisorEmail,
+                    }
+                },
+            },
+        )
+
+        return jsonify(
+            {
+                "message": "Internship submitted successfully",
+                "success": True,
+            }
+        )
+
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500

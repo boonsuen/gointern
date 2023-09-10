@@ -212,3 +212,28 @@ def approveCompany(user):
         )
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500
+
+
+@companies.route("", methods=["GET"])
+def getApprovedCompanies():
+    try:
+        companies = Company.prisma().find_many(
+            where={"isApproved": True}, order={"createdAt": "desc"}
+        )
+        return jsonify(
+            {
+                "message": "Companies fetched successfully",
+                "data": [
+                    {
+                        "email": company.email,
+                        "companyName": company.companyName,
+                        "isApproved": company.isApproved,
+                        "createdAt": company.createdAt.isoformat(),
+                    }
+                    for company in companies
+                ],
+                "success": True,
+            }
+        )
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500

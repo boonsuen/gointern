@@ -44,16 +44,16 @@ model Admin {
 }
 
 model Internship {
-  id                 String           @id @default(uuid())
-  startDate          DateTime
-  endDate            DateTime
-  status             String          @default("NOT_SUBMITTED")
+  id                 String   @id @default(uuid())
+  startDate          DateTime @db.Date
+  endDate            DateTime @db.Date
+  status             String   @default("NOT_SUBMITTED")
   allowance          Float
   comSupervisorName  String
   comSupervisorEmail String
-  createdAt          DateTime         @default(now())
-  student            Student          @relation(fields: [studentId], references: [studentId])
-  studentId          String           @unique
-  company            Company          @relation(fields: [companyId], references: [email])
+  createdAt          DateTime @default(now())
+  student            Student  @relation(fields: [studentId], references: [studentId])
+  studentId          String   @unique
+  company            Company  @relation(fields: [companyId], references: [email])
   companyId          String
 }
