@@ -210,7 +210,7 @@ def getStudents(user):
         return jsonify({"message": str(e), "success": False}), 500
 
 
-@students.route("submit-internship", methods=["POST"])
+@students.route("/submit-internship", methods=["POST"])
 @student_token_required
 def submitInternship(user):
     try:
