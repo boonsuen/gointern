@@ -47,7 +47,7 @@ model Internship {
   id                 String   @id @default(uuid())
   startDate          DateTime @db.Date
   endDate            DateTime @db.Date
-  status             String   @default("NOT_SUBMITTED")
+  status             String   @default("SUBMITTED")
   allowance          Float
   comSupervisorName  String
   comSupervisorEmail String

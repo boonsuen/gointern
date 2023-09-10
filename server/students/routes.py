@@ -63,7 +63,8 @@ def studentLogin():
             return {"message": "Missing required fields", "success": False}
 
         student = Student.prisma().find_unique(
-            where={"email": email}, include={"supervisor": True}
+            where={"email": email},
+            include={"internship": {"include": {"company": True}}, "supervisor": True},
         )
 
         if student is None:
@@ -77,6 +78,23 @@ def studentLogin():
             supervisor = {
                 "fullName": student.supervisor.fullName,
                 "email": student.supervisor.email,
+            }
+
+        internship = None
+        if student.internship is not None:
+            internship = {
+                "id": student.internship.id,
+                "status": student.internship.status,
+                "company": {
+                    "companyName": student.internship.company.companyName,
+                    "email": student.internship.company.email,
+                },
+                "startDate": student.internship.startDate.isoformat(),
+                "endDate": student.internship.endDate.isoformat(),
+                "allowance": student.internship.allowance,
+                "createdAt": student.internship.createdAt.isoformat(),
+                "comSupervisorName": student.internship.comSupervisorName,
+                "comSupervisorEmail": student.internship.comSupervisorEmail,
             }
 
         # Create access token
@@ -93,6 +111,8 @@ def studentLogin():
                         "email": student.email,
                         "icNumber": student.icNumber,
                         "supervisor": supervisor,
+                        "createdAt": student.createdAt.isoformat(),
+                        "internship": internship,
                     },
                 }
             ),
@@ -126,7 +146,8 @@ def studentMe():
             token, current_app.config["JWT_SECRET_KEY"], algorithms=["HS256"]
         )
         user = Student.prisma().find_unique(
-            where={"email": decoded["sub"]}, include={"supervisor": True}
+            where={"email": decoded["sub"]},
+            include={"internship": {"include": {"company": True}}, "supervisor": True},
         )
         if user is None:
             return {
@@ -142,6 +163,23 @@ def studentMe():
                 "fullName": user.supervisor.fullName,
             }
 
+        internship = None
+        if user.internship is not None:
+            internship = {
+                "id": user.internship.id,
+                "status": user.internship.status,
+                "company": {
+                    "companyName": user.internship.company.companyName,
+                    "email": user.internship.company.email,
+                },
+                "startDate": user.internship.startDate.isoformat(),
+                "endDate": user.internship.endDate.isoformat(),
+                "allowance": user.internship.allowance,
+                "createdAt": user.internship.createdAt.isoformat(),
+                "comSupervisorName": user.internship.comSupervisorName,
+                "comSupervisorEmail": user.internship.comSupervisorEmail,
+            }
+
         return jsonify(
             {
                 "message": "Authorized student",
@@ -152,6 +190,8 @@ def studentMe():
                     "email": user.email,
                     "icNumber": user.icNumber,
                     "supervisor": supervisor,
+                    "createdAt": user.createdAt.isoformat(),
+                    "internship": internship,
                 },
             }
         )
@@ -236,26 +276,49 @@ def submitInternship(user):
         ):
             return {"message": "Missing required fields", "success": False}
 
-        student = Student.prisma().find_unique(where={"email": user.email})
+        student = Student.prisma().find_unique(
+            where={"email": user.email},
+            include={"internship": {"include": {"company": True}}, "supervisor": True},
+        )
 
         if student is None:
             return {"message": "Student not found", "success": False}
 
-        student = Student.prisma().update(
-            where={"email": user.email},
-            data={
-                "internship": {
-                    "create": {
-                        "startDate": startDate,
-                        "endDate": endDate,
-                        "allowance": allowance,
-                        "company": {"connect": {"email": companyEmail}},
-                        "comSupervisorName": comSupervisorName,
-                        "comSupervisorEmail": comSupervisorEmail,
-                    }
+        # If student has not yet submitted internship
+        if student.internship is None:
+            student = Student.prisma().update(
+                where={"email": user.email},
+                data={
+                    "internship": {
+                        "create": {
+                            "startDate": startDate,
+                            "endDate": endDate,
+                            "allowance": allowance,
+                            "company": {"connect": {"email": companyEmail}},
+                            "comSupervisorName": comSupervisorName,
+                            "comSupervisorEmail": comSupervisorEmail,
+                        }
+                    },
                 },
-            },
-        )
+            )
+        else:
+            # Else, update the existing internship
+            student = Student.prisma().update(
+                where={"email": user.email},
+                data={
+                    "internship": {
+                        "update": {
+                            "startDate": startDate,
+                            "endDate": endDate,
+                            "allowance": allowance,
+                            "company": {"connect": {"email": companyEmail}},
+                            "comSupervisorName": comSupervisorName,
+                            "comSupervisorEmail": comSupervisorEmail,
+                            "status": "SUBMITTED",
+                        }
+                    },
+                },
+            )
 
         return jsonify(
             {
