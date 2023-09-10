@@ -33,6 +33,20 @@ export type StudentUser = {
     fullName: string;
     email: string;
   } | null;
+  internship: {
+    id: string;
+    startDate: string;
+    endDate: string;
+    allowance: number;
+    status: 'SUBMITTED' | 'APPROVED' | 'REJECTED';
+    company: {
+      companyName: string;
+      email: string;
+    };
+    comSupervisorName: string;
+    comSupervisorEmail: string;
+    createdAt: string;
+  } | null;
 };
 
 export type SupervisorUser = {

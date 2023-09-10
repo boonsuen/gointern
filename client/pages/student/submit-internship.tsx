@@ -15,6 +15,8 @@ import clsx from 'clsx';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import dayjs from 'dayjs';
+import { useRouter } from 'next/router';
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -26,18 +28,12 @@ interface Company {
   createdAt: string;
 }
 
-interface Supervisor {
-  email: string;
-  fullName: string;
-  isApproved: boolean;
-  createdAt: string;
-}
-
 export default function SubmitInternshipPage() {
   const [form] = Form.useForm();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -102,7 +98,8 @@ export default function SubmitInternshipPage() {
           return toast.error(response.message || 'Something went wrong');
         }
 
-        toast.success('Internship submitted');
+        // Reload
+        router.reload();
       } catch (error) {
         console.log(error);
       } finally {
@@ -145,16 +142,51 @@ export default function SubmitInternshipPage() {
               </h1>
             </header>
             <div className="min-[650px]:max-w-[400px] min-[768px]:max-w-full min-[850px]:max-w-[400px] pt-4 w-full mx-auto">
-              <Alert
-                className="mt-4 mb-8"
-                message={
-                  <span>
-                    Internship Submission Status: <b>Not Submitted</b>
-                  </span>
-                }
-                type="info"
-                showIcon
-              />
+              {!user.internship ? (
+                <Alert
+                  className="mt-4 mb-8"
+                  message={
+                    <span>
+                      Submission Status: <b>Not Yet Submitted</b>
+                    </span>
+                  }
+                  type="warning"
+                  showIcon
+                />
+              ) : user.internship.status === 'SUBMITTED' ? (
+                <Alert
+                  className="mt-4 mb-8"
+                  message={
+                    <span>
+                      Submission Status: <b>Submitted</b>
+                    </span>
+                  }
+                  type="info"
+                  showIcon
+                />
+              ) : user.internship.status === 'APPROVED' ? (
+                <Alert
+                  className="mt-4 mb-8"
+                  message={
+                    <span>
+                      Submission Status: <b>Approved</b>
+                    </span>
+                  }
+                  type="success"
+                  showIcon
+                />
+              ) : (
+                <Alert
+                  className="mt-4 mb-8"
+                  message={
+                    <span>
+                      Submission Status: <b>Rejected</b>, please resubmit
+                    </span>
+                  }
+                  type="error"
+                  showIcon
+                />
+              )}
               <Form
                 form={form}
                 onFinish={onFinish}
@@ -163,8 +195,23 @@ export default function SubmitInternshipPage() {
                 initialValues={{
                   uniSupervisorName: user.supervisor.fullName,
                   uniSupervisorEmail: user.supervisor.email,
+                  ...(user.internship && {
+                    internshipPeriod: [
+                      dayjs(user.internship.startDate),
+                      dayjs(user.internship.endDate),
+                    ],
+                    companyEmail: user.internship.company.email,
+                    allowance: user.internship.allowance,
+                    comSupervisorName: user.internship.comSupervisorName,
+                    comSupervisorEmail: user.internship.comSupervisorEmail,
+                  }),
                 }}
-                disabled={isLoading}
+                disabled={
+                  isLoading ||
+                  isSubmitting ||
+                  user.internship?.status === 'SUBMITTED' ||
+                  user.internship?.status === 'APPROVED'
+                }
               >
                 <Form.Item
                   name="internshipPeriod"
@@ -176,7 +223,7 @@ export default function SubmitInternshipPage() {
                     },
                   ]}
                 >
-                  <RangePicker className="w-full" />
+                  <RangePicker className="w-full" format={'YYYY/MM/DD'} />
                 </Form.Item>
                 <Title
                   level={2}

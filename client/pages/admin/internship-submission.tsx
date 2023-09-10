@@ -133,7 +133,7 @@ export default function InternshipSubmissionPage() {
       title: 'Action',
       key: 'action',
       render: (_, record) => (
-        <Space size="middle" direction="vertical">
+        <Space size="middle">
           <button
             onClick={() => {
               setSelectedStudent(
@@ -148,20 +148,20 @@ export default function InternshipSubmissionPage() {
             View Internship Details
           </button>
           {record.internship.status === 'SUBMITTED' && (
-            <Space size="middle">
+            <>
               <button
                 onClick={() => handleApprove(record.internship.id)}
-                className="text-green-500 hover:text-green-700 transition-colors"
+                className="text-primary hover:text-[#69b1ff] transition-colors"
               >
                 Approve
               </button>
               <button
                 onClick={() => handleReject(record.internship.id)}
-                className="text-red-500 hover:text-red-700 transition-colors"
+                className="text-primary hover:text-[#69b1ff] transition-colors"
               >
                 Reject
               </button>
-            </Space>
+            </>
           )}
         </Space>
       ),
@@ -272,7 +272,7 @@ export default function InternshipSubmissionPage() {
             <Table
               loading={isLoading}
               columns={columns}
-              scroll={{ x: 770 }}
+              scroll={{ x: 900 }}
               dataSource={students.map((student) => ({
                 key: student.studentId,
                 ...student,
