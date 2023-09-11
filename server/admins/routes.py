@@ -2,7 +2,7 @@ from flask import Blueprint, current_app, jsonify, make_response, request
 from flask_jwt_extended import create_access_token, unset_jwt_cookies
 import jwt
 import prisma
-from prisma.models import Admin, Student, Internship
+from prisma.models import Admin, Student, Internship, Company
 
 from auth_middleware import admin_token_required
 
@@ -225,6 +225,29 @@ def rejectInternship(user):
         return jsonify(
             {
                 "message": "Internship rejected successfully",
+                "success": True,
+            }
+        )
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+
+@admins.route("/companies", methods=["GET"])
+@admin_token_required
+def getCompanies(user):
+    try:
+        companies = Company.prisma().find_many(order={"createdAt": "desc"})
+        return jsonify(
+            {
+                "message": "Companies fetched successfully",
+                "data": [
+                    {
+                        "email": company.email,
+                        "companyName": company.companyName,
+                        "isApproved": company.isApproved,
+                        "createdAt": company.createdAt.isoformat(),
+                    }
+                    for company in companies
+                ],
                 "success": True,
             }
         )

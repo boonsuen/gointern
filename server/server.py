@@ -29,13 +29,10 @@ app.register_blueprint(supervisors, url_prefix="/api/supervisors")
 app.register_blueprint(companies, url_prefix="/api/companies")
 app.register_blueprint(admins, url_prefix="/api/admins")
 
-bucket = custombucket
-region = customregion
 
-
-@app.route("/api/hello", methods=["GET", "POST"])
+@app.route("/api/testing", methods=["GET", "POST"])
 def home():
-    return jsonify({"message": "This is the home", "success": True})
+    return jsonify({"message": "Testing", "success": True})
 
 
 # @app.route("/addemp", methods=["POST"])

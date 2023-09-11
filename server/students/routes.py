@@ -1,8 +1,10 @@
 from flask import Blueprint, current_app, jsonify, make_response, request
-from flask_jwt_extended import create_access_token, unset_jwt_cookies
+from flask_jwt_extended import create_access_token
 import jwt
+import boto3
 import prisma
 from prisma.models import Student
+from config import *
 
 from auth_middleware import supervisor_token_required, student_token_required
 
@@ -327,5 +329,143 @@ def submitInternship(user):
             }
         )
 
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+
+
+@students.route("/progress-report", methods=["POST"])
+@student_token_required
+def uploadProgressReport(user):
+    try:
+        progress_report_file = request.files["progressReportFile"]
+
+        if progress_report_file is None or progress_report_file.filename == "":
+            return {"message": "Please select a file", "success": False}
+
+        student = Student.prisma().find_unique(
+            where={"email": user.email},
+            include={"internship": {"include": {"company": True}}, "supervisor": True},
+        )
+
+        if student is None:
+            return {"message": "Student not found", "success": False}
+
+        # Get file extension
+        file_extension = progress_report_file.filename.split(".")[-1]
+
+        progress_report_file_name_in_s3 = (
+            "progress-report-" + student.studentId + "." + file_extension
+        )
+
+        # Upload file to S3
+        s3 = boto3.resource("s3")
+        s3.Bucket(custom_bucket).put_object(
+            Key="progress-reports/" + progress_report_file_name_in_s3,
+            Body=progress_report_file,
+        )
+        bucket_location = boto3.client("s3").get_bucket_location(Bucket=custom_bucket)
+        s3_location = bucket_location["LocationConstraint"]
+        if s3_location is None:
+            s3_location = ""
+        else:
+            s3_location = "-" + s3_location
+
+        object_url = "https://s3{0}.amazonaws.com/{1}/{2}".format(
+            s3_location, custom_bucket, progress_report_file_name_in_s3
+        )
+
+        # Generate presigned URL
+        presigned_url = s3.meta.client.generate_presigned_url(
+            "get_object",
+            Params={
+                "Bucket": custom_bucket,
+                "Key": "progress-reports/" + progress_report_file_name_in_s3,
+            },
+            ExpiresIn=3600,
+        )
+
+        # Get uploadedAt
+        uploadedAt = s3.Bucket(custom_bucket).Object(
+            "progress-reports/progress-report-" + student.studentId + ".pdf"
+        ).last_modified
+
+        return jsonify(
+            {
+                "message": "Progress report uploaded successfully",
+                "success": True,
+                "data": {
+                    "downloadUrl": presigned_url,
+                    "uploadedAt": uploadedAt,
+                },
+            }
+        )
+
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+
+
+@students.route("/progress-report", methods=["GET"])
+@student_token_required
+def getProgressReport(user):
+    try:
+        student = Student.prisma().find_unique(
+            where={"email": user.email},
+            include={"internship": {"include": {"company": True}}, "supervisor": True},
+        )
+
+        if student is None:
+            return {"message": "Student not found", "success": False}
+
+        if student.internship is None:
+            return {"message": "Student has not submitted internship", "success": False}
+
+        # Check S3 if file exists using head_object
+        s3 = boto3.resource("s3")
+        bucket = s3.Bucket(custom_bucket)
+        file_exists = True
+        try:
+            bucket.Object(
+                "progress-reports/progress-report-" + student.studentId + ".pdf"
+            ).load()
+        except:
+            file_exists = False
+
+        if not file_exists:
+            return jsonify(
+                {
+                    "message": "Progress report not found",
+                    "success": True,
+                    "data": {
+                        "downloadUrl": None,
+                        "uploadedAt": None,
+                    },
+                }
+            )
+
+        # Generate presigned URL
+        presigned_url = s3.meta.client.generate_presigned_url(
+            "get_object",
+            Params={
+                "Bucket": custom_bucket,
+                "Key": "progress-reports/progress-report-" + student.studentId + ".pdf",
+            },
+            ExpiresIn=3600,
+        )
+
+        # Get uploadedAt
+        uploadedAt = bucket.Object(
+            "progress-reports/progress-report-" + student.studentId + ".pdf"
+        ).last_modified
+
+        return jsonify(
+            {
+                "message": "Progress report fetched successfully",
+                "success": True,
+                "data": {
+                    "downloadUrl": presigned_url,
+                    "uploadedAt": uploadedAt,
+                },
+            }
+        )
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500

@@ -159,30 +159,6 @@ def companyLogout():
         return jsonify({"message": str(e), "success": False}), 500
 
 
-@companies.route("", methods=["GET"])
-@admin_token_required
-def getCompanies(user):
-    try:
-        companies = Company.prisma().find_many(order={"createdAt": "desc"})
-        return jsonify(
-            {
-                "message": "Companies fetched successfully",
-                "data": [
-                    {
-                        "email": company.email,
-                        "companyName": company.companyName,
-                        "isApproved": company.isApproved,
-                        "createdAt": company.createdAt.isoformat(),
-                    }
-                    for company in companies
-                ],
-                "success": True,
-            }
-        )
-    except Exception as e:
-        return jsonify({"message": str(e), "success": False}), 500
-
-
 @companies.route("/approve", methods=["POST"])
 @admin_token_required
 def approveCompany(user):
