@@ -59,7 +59,7 @@ interface DataType {
   };
 }
 
-export default function InternshipSubmissionPage() {
+const PageContent = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -123,11 +123,9 @@ export default function InternshipSubmissionPage() {
               <span className="text-green-500 font-semibold">Approved</span>
             );
           case 'REJECTED':
-            return (
-              <span className="text-red-500 font-semibold">Rejected</span>
-            );
+            return <span className="text-red-500 font-semibold">Rejected</span>;
         }
-      }
+      },
     },
     {
       title: 'Action',
@@ -186,9 +184,9 @@ export default function InternshipSubmissionPage() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             internshipId: id,
-           }),
+          }),
         })
           .then((res) => res.json())
           .then((res) => {
@@ -196,7 +194,13 @@ export default function InternshipSubmissionPage() {
               setStudents((prev) =>
                 prev.map((student) =>
                   student.internship.id === id
-                    ? { ...student, internship: { ...student.internship, status: 'APPROVED' } }
+                    ? {
+                        ...student,
+                        internship: {
+                          ...student.internship,
+                          status: 'APPROVED',
+                        },
+                      }
                     : student
                 )
               );
@@ -222,9 +226,9 @@ export default function InternshipSubmissionPage() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             internshipId: id,
-           }),
+          }),
         })
           .then((res) => res.json())
           .then((res) => {
@@ -232,7 +236,13 @@ export default function InternshipSubmissionPage() {
               setStudents((prev) =>
                 prev.map((student) =>
                   student.internship.id === id
-                    ? { ...student, internship: { ...student.internship, status: 'REJECTED' } }
+                    ? {
+                        ...student,
+                        internship: {
+                          ...student.internship,
+                          status: 'REJECTED',
+                        },
+                      }
                     : student
                 )
               );
@@ -250,120 +260,122 @@ export default function InternshipSubmissionPage() {
   };
 
   return (
+    <>
+      <header
+        className={clsx(
+          'flex justify-between items-center',
+          'pb-4',
+          'border-b border-[#f0f0f0]'
+        )}
+      >
+        <h1 className="text-xl font-semibold text-gray-800">
+          Student Internship Submission
+        </h1>
+      </header>
+      <Table
+        loading={isLoading}
+        columns={columns}
+        scroll={{ x: 900 }}
+        dataSource={students.map((student) => ({
+          key: student.studentId,
+          ...student,
+        }))}
+        onChange={onChange}
+        bordered
+        title={() => <p>Total {students.length} submissions received</p>}
+      />
+      <Modal
+        onCancel={() => setIsModalVisible(false)}
+        title="Internship Submission Details"
+        open={isModalVisible}
+        footer={null}
+      >
+        {selectedStudent && (
+          <table className="table-auto w-full mt-4">
+            <tbody className="text-gray-700">
+              <tr>
+                <td className="font-semibold bg-gray-100 px-4 py-2">
+                  Start Date
+                </td>
+                <td className="px-4 py-2">
+                  {new Date(
+                    selectedStudent.internship.startDate
+                  ).toLocaleDateString()}
+                </td>
+              </tr>
+              <tr>
+                <td className="font-semibold bg-gray-100 px-4 py-2">
+                  End Date
+                </td>
+                <td className="px-4 py-2">
+                  {new Date(
+                    selectedStudent.internship.endDate
+                  ).toLocaleDateString()}
+                </td>
+              </tr>
+              <tr>
+                <td className="font-semibold bg-gray-100 px-4 py-2">Status</td>
+                <td className="px-4 py-2">
+                  {selectedStudent.internship.status}
+                </td>
+              </tr>
+              <tr>
+                <td className="font-semibold bg-gray-100 px-4 py-2">
+                  Allowance
+                </td>
+                <td className="px-4 py-2">
+                  RM {selectedStudent.internship.allowance.toFixed(2)}
+                </td>
+              </tr>
+              <tr>
+                <td className="font-semibold bg-gray-100 px-4 py-2">
+                  Com. Name
+                </td>
+                <td className="px-4 py-2">
+                  {selectedStudent.internship.company.companyName}
+                </td>
+              </tr>
+              <tr>
+                <td className="font-semibold bg-gray-100 px-4 py-2">
+                  Com. Email
+                </td>
+                <td className="px-4 py-2">
+                  {selectedStudent.internship.company.email}
+                </td>
+              </tr>
+              <tr>
+                <td className="font-semibold bg-gray-100 px-4 py-2">
+                  Com. Supervisor Name
+                </td>
+                <td className="px-4 py-2">
+                  {selectedStudent.internship.comSupervisorName}
+                </td>
+              </tr>
+              <tr>
+                <td className="font-semibold bg-gray-100 px-4 py-2">
+                  Com. Supervisor Email
+                </td>
+                <td className="px-4 py-2">
+                  {selectedStudent.internship.comSupervisorEmail}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        )}
+      </Modal>
+    </>
+  );
+};
+
+export default function InternshipSubmissionPage() {
+  return (
     <Layout
       defaultOpenKey="/admin"
       selectedKey="/admin/internship-submission"
       renderContent={(u) => {
         const user = u as AdminUser;
 
-        return (
-          <>
-            <header
-              className={clsx(
-                'flex justify-between items-center',
-                'pb-4',
-                'border-b border-[#f0f0f0]'
-              )}
-            >
-              <h1 className="text-xl font-semibold text-gray-800">
-                Student Internship Submission
-              </h1>
-            </header>
-            <Table
-              loading={isLoading}
-              columns={columns}
-              scroll={{ x: 900 }}
-              dataSource={students.map((student) => ({
-                key: student.studentId,
-                ...student,
-              }))}
-              onChange={onChange}
-              bordered
-              title={() => <p>Total {students.length} submissions received</p>}
-            />
-            <Modal
-              onCancel={() => setIsModalVisible(false)}
-              title="Internship Submission Details"
-              open={isModalVisible}
-              footer={null}
-            >
-              {selectedStudent && (
-                <table className="table-auto w-full mt-4">
-                  <tbody className="text-gray-700">
-                    <tr>
-                      <td className="font-semibold bg-gray-100 px-4 py-2">
-                        Start Date
-                      </td>
-                      <td className="px-4 py-2">
-                        {new Date(
-                          selectedStudent.internship.startDate
-                        ).toLocaleDateString()}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="font-semibold bg-gray-100 px-4 py-2">
-                        End Date
-                      </td>
-                      <td className="px-4 py-2">
-                        {new Date(
-                          selectedStudent.internship.endDate
-                        ).toLocaleDateString()}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="font-semibold bg-gray-100 px-4 py-2">
-                        Status
-                      </td>
-                      <td className="px-4 py-2">
-                        {selectedStudent.internship.status}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="font-semibold bg-gray-100 px-4 py-2">
-                        Allowance
-                      </td>
-                      <td className="px-4 py-2">
-                        RM {selectedStudent.internship.allowance.toFixed(2)}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="font-semibold bg-gray-100 px-4 py-2">
-                        Com. Name
-                      </td>
-                      <td className="px-4 py-2">
-                        {selectedStudent.internship.company.companyName}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="font-semibold bg-gray-100 px-4 py-2">
-                        Com. Email
-                      </td>
-                      <td className="px-4 py-2">
-                        {selectedStudent.internship.company.email}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="font-semibold bg-gray-100 px-4 py-2">
-                        Com. Supervisor Name
-                      </td>
-                      <td className="px-4 py-2">
-                        {selectedStudent.internship.comSupervisorName}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="font-semibold bg-gray-100 px-4 py-2">
-                        Com. Supervisor Email
-                      </td>
-                      <td className="px-4 py-2">
-                        {selectedStudent.internship.comSupervisorEmail}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              )}
-            </Modal>
-          </>
-        );
+        return <PageContent />;
       }}
     />
   );

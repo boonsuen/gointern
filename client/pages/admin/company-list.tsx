@@ -25,7 +25,7 @@ interface DataType {
 
 type DataIndex = keyof DataType;
 
-export default function CompanyListPage() {
+const PageContent = () => {
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef<InputRef>(null);
@@ -220,7 +220,7 @@ export default function CompanyListPage() {
     const fetchCompanies = async () => {
       try {
         const response = await (
-          await fetch(`${API_URL}/companies`, {
+          await fetch(`${API_URL}/admins/companies`, {
             method: 'GET',
             credentials: 'include',
           })
@@ -273,82 +273,78 @@ export default function CompanyListPage() {
       console.log(error);
     }
   };
+  
+  return (
+    <>
+      <header className={clsx('flex justify-between items-center', 'pb-4')}>
+        <h1 className="text-xl font-semibold text-gray-800">Company List</h1>
+      </header>
+      <Table
+        loading={isLoading}
+        columns={columns}
+        scroll={{ x: 770 }}
+        dataSource={companies.map((company) => ({
+          key: `company-${company.email}`,
+          companyName: company.companyName,
+          email: company.email,
+          isApproved: company.isApproved,
+        }))}
+        onChange={onChange}
+      />
+      <Modal
+        onCancel={() => setIsModalVisible(false)}
+        title="Company Details"
+        open={isModalVisible}
+        footer={null}
+      >
+        {selectedCompany && (
+          <table className="table-auto w-full mt-4">
+            <tbody className="text-gray-700">
+              <tr>
+                <td className="font-semibold bg-gray-100 px-4 py-2">
+                  Company Name
+                </td>
+                <td className="px-4 py-2">{selectedCompany.companyName}</td>
+              </tr>
+              <tr>
+                <td className="font-semibold bg-gray-100 px-4 py-2">Email</td>
+                <td className="px-4 py-2">{selectedCompany.email}</td>
+              </tr>
+              <tr>
+                <td className="font-semibold bg-gray-100 px-4 py-2">
+                  Approval Status
+                </td>
+                <td className="px-4 py-2">
+                  {selectedCompany.isApproved ? (
+                    <Tag color="green">Approved</Tag>
+                  ) : (
+                    <Tag color="red">Not Approved</Tag>
+                  )}
+                </td>
+              </tr>
+              <tr>
+                <td className="font-semibold bg-gray-100 px-4 py-2">
+                  Signup Date
+                </td>
+                <td className="px-4 py-2">
+                  {new Date(selectedCompany.createdAt).toLocaleString()}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        )}
+      </Modal>
+    </>
+  );
+};
 
+export default function CompanyListPage() {
   return (
     <Layout
       defaultOpenKey="/admin"
       selectedKey="/admin/company-list"
       renderContent={(u) => {
-        return (
-          <>
-            <header
-              className={clsx('flex justify-between items-center', 'pb-4')}
-            >
-              <h1 className="text-xl font-semibold text-gray-800">
-                Company List
-              </h1>
-            </header>
-            <Table
-              loading={isLoading}
-              columns={columns}
-              scroll={{ x: 770 }}
-              dataSource={companies.map((company) => ({
-                key: `company-${company.email}`,
-                companyName: company.companyName,
-                email: company.email,
-                isApproved: company.isApproved,
-              }))}
-              onChange={onChange}
-            />
-            <Modal
-              onCancel={() => setIsModalVisible(false)}
-              title="Company Details"
-              open={isModalVisible}
-              footer={null}
-            >
-              {selectedCompany && (
-                <table className="table-auto w-full mt-4">
-                  <tbody className="text-gray-700">
-                    <tr>
-                      <td className="font-semibold bg-gray-100 px-4 py-2">
-                        Company Name
-                      </td>
-                      <td className="px-4 py-2">
-                        {selectedCompany.companyName}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="font-semibold bg-gray-100 px-4 py-2">
-                        Email
-                      </td>
-                      <td className="px-4 py-2">{selectedCompany.email}</td>
-                    </tr>
-                    <tr>
-                      <td className="font-semibold bg-gray-100 px-4 py-2">
-                        Approval Status
-                      </td>
-                      <td className="px-4 py-2">
-                        {selectedCompany.isApproved ? (
-                          <Tag color="green">Approved</Tag>
-                        ) : (
-                          <Tag color="red">Not Approved</Tag>
-                        )}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="font-semibold bg-gray-100 px-4 py-2">
-                        Signup Date
-                      </td>
-                      <td className="px-4 py-2">
-                        {new Date(selectedCompany.createdAt).toLocaleString()}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              )}
-            </Modal>
-          </>
-        );
+        return <PageContent />;
       }}
     />
   );

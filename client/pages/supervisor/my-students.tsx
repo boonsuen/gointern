@@ -163,7 +163,7 @@ const AssignStudentForm = ({
   );
 };
 
-export default function MyStudentsPage() {
+const PageContent = ({ user }: { user: SupervisorUser }) => {
   const columns: ColumnsType<DataType> = [
     {
       title: 'Student ID',
@@ -268,6 +268,57 @@ export default function MyStudentsPage() {
   }, []);
 
   return (
+    <>
+      <header
+        className={clsx(
+          'flex justify-between items-center',
+          'pb-4',
+          'border-b border-[#f0f0f0]'
+        )}
+      >
+        <h1 className="text-xl font-semibold text-gray-800">My Students</h1>
+      </header>
+      <div className="flex justify-end">
+        <Button
+          onClick={showAssignStudentModal}
+          icon={<PlusOutlined />}
+          type="primary"
+          size="middle"
+          className="my-5 bg-primary"
+        >
+          Assign Student
+        </Button>
+        <AssignStudentForm
+          open={isAssignStudentModalOpen}
+          onAssign={onAssign}
+          onCancel={() => {
+            setIsAssignStudentModalOpen(false);
+          }}
+        />
+      </div>
+      <Table
+        loading={isLoading}
+        columns={columns}
+        dataSource={assignedStudents.map((student) => ({
+          key: student.studentId,
+          studentId: student.studentId,
+          fullName: student.fullName,
+          email: student.email,
+        }))}
+        onChange={onChange}
+        bordered
+        title={() => (
+          <p>
+            You have {assignedStudents.length} students under your supervision
+          </p>
+        )}
+      />
+    </>
+  );
+};
+
+export default function MyStudentsPage() {
+  return (
     <Layout
       defaultOpenKey="/supervisor"
       selectedKey="/supervisor/my-students"
@@ -285,57 +336,7 @@ export default function MyStudentsPage() {
           );
         }
 
-        return (
-          <>
-            <header
-              className={clsx(
-                'flex justify-between items-center',
-                'pb-4',
-                'border-b border-[#f0f0f0]'
-              )}
-            >
-              <h1 className="text-xl font-semibold text-gray-800">
-                My Students
-              </h1>
-            </header>
-            <div className="flex justify-end">
-              <Button
-                onClick={showAssignStudentModal}
-                icon={<PlusOutlined />}
-                type="primary"
-                size="middle"
-                className="my-5 bg-primary"
-              >
-                Assign Student
-              </Button>
-              <AssignStudentForm
-                open={isAssignStudentModalOpen}
-                onAssign={onAssign}
-                onCancel={() => {
-                  setIsAssignStudentModalOpen(false);
-                }}
-              />
-            </div>
-            <Table
-              loading={isLoading}
-              columns={columns}
-              dataSource={assignedStudents.map((student) => ({
-                key: student.studentId,
-                studentId: student.studentId,
-                fullName: student.fullName,
-                email: student.email,
-              }))}
-              onChange={onChange}
-              bordered
-              title={() => (
-                <p>
-                  You have {assignedStudents.length} students under your
-                  supervision
-                </p>
-              )}
-            />
-          </>
-        );
+        return <PageContent user={user} />;
       }}
     />
   );

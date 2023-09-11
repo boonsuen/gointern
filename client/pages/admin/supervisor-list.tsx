@@ -25,7 +25,7 @@ interface DataType {
 
 type DataIndex = keyof DataType;
 
-export default function SupervisorListPage() {
+const PageContent = () => {
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef<InputRef>(null);
@@ -180,8 +180,9 @@ export default function SupervisorListPage() {
           <button
             onClick={() => {
               setSelectedSupervisor(
-                supervisors.find((supervisor) => supervisor.email === record.email) ||
-                  null
+                supervisors.find(
+                  (supervisor) => supervisor.email === record.email
+                ) || null
               );
               setIsModalVisible(true);
             }}
@@ -214,7 +215,8 @@ export default function SupervisorListPage() {
   const [supervisors, setSupervisors] = useState<Supervisor[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [selectedSupervisor, setSelectedSupervisor] = useState<Supervisor | null>(null);
+  const [selectedSupervisor, setSelectedSupervisor] =
+    useState<Supervisor | null>(null);
 
   useEffect(() => {
     const fetchSupervisors = async () => {
@@ -256,7 +258,7 @@ export default function SupervisorListPage() {
             if (res.success) {
               setSupervisors((prev) =>
                 prev.map((supervisor) =>
-                supervisor.email === email
+                  supervisor.email === email
                     ? { ...supervisor, isApproved: true }
                     : supervisor
                 )
@@ -275,80 +277,76 @@ export default function SupervisorListPage() {
   };
 
   return (
+    <>
+      <header className={clsx('flex justify-between items-center', 'pb-4')}>
+        <h1 className="text-xl font-semibold text-gray-800">Supervisor List</h1>
+      </header>
+      <Table
+        loading={isLoading}
+        columns={columns}
+        scroll={{ x: 770 }}
+        dataSource={supervisors.map((supervisor) => ({
+          key: `supervisor-${supervisor.email}`,
+          fullName: supervisor.fullName,
+          email: supervisor.email,
+          isApproved: supervisor.isApproved,
+        }))}
+        onChange={onChange}
+      />
+      <Modal
+        onCancel={() => setIsModalVisible(false)}
+        title="Supervisor Details"
+        open={isModalVisible}
+        footer={null}
+      >
+        {selectedSupervisor && (
+          <table className="table-auto w-full mt-4">
+            <tbody className="text-gray-700">
+              <tr>
+                <td className="font-semibold bg-gray-100 px-4 py-2">
+                  Full Name
+                </td>
+                <td className="px-4 py-2">{selectedSupervisor.fullName}</td>
+              </tr>
+              <tr>
+                <td className="font-semibold bg-gray-100 px-4 py-2">Email</td>
+                <td className="px-4 py-2">{selectedSupervisor.email}</td>
+              </tr>
+              <tr>
+                <td className="font-semibold bg-gray-100 px-4 py-2">
+                  Approval Status
+                </td>
+                <td className="px-4 py-2">
+                  {selectedSupervisor.isApproved ? (
+                    <Tag color="green">Approved</Tag>
+                  ) : (
+                    <Tag color="red">Not Approved</Tag>
+                  )}
+                </td>
+              </tr>
+              <tr>
+                <td className="font-semibold bg-gray-100 px-4 py-2">
+                  Signup Date
+                </td>
+                <td className="px-4 py-2">
+                  {new Date(selectedSupervisor.createdAt).toLocaleString()}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        )}
+      </Modal>
+    </>
+  );
+};
+
+export default function SupervisorListPage() {
+  return (
     <Layout
       defaultOpenKey="/admin"
       selectedKey="/admin/supervisor-list"
       renderContent={(u) => {
-        return (
-          <>
-            <header
-              className={clsx('flex justify-between items-center', 'pb-4')}
-            >
-              <h1 className="text-xl font-semibold text-gray-800">
-                Supervisor List
-              </h1>
-            </header>
-            <Table
-              loading={isLoading}
-              columns={columns}
-              scroll={{ x: 770 }}
-              dataSource={supervisors.map((supervisor) => ({
-                key: `supervisor-${supervisor.email}`,
-                fullName: supervisor.fullName,
-                email: supervisor.email,
-                isApproved: supervisor.isApproved,
-              }))}
-              onChange={onChange}
-            />
-            <Modal
-              onCancel={() => setIsModalVisible(false)}
-              title="Supervisor Details"
-              open={isModalVisible}
-              footer={null}
-            >
-              {selectedSupervisor && (
-                <table className="table-auto w-full mt-4">
-                  <tbody className="text-gray-700">
-                    <tr>
-                      <td className="font-semibold bg-gray-100 px-4 py-2">
-                        Full Name
-                      </td>
-                      <td className="px-4 py-2">
-                        {selectedSupervisor.fullName}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="font-semibold bg-gray-100 px-4 py-2">
-                        Email
-                      </td>
-                      <td className="px-4 py-2">{selectedSupervisor.email}</td>
-                    </tr>
-                    <tr>
-                      <td className="font-semibold bg-gray-100 px-4 py-2">
-                        Approval Status
-                      </td>
-                      <td className="px-4 py-2">
-                        {selectedSupervisor.isApproved ? (
-                          <Tag color="green">Approved</Tag>
-                        ) : (
-                          <Tag color="red">Not Approved</Tag>
-                        )}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="font-semibold bg-gray-100 px-4 py-2">
-                        Signup Date
-                      </td>
-                      <td className="px-4 py-2">
-                        {new Date(selectedSupervisor.createdAt).toLocaleString()}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              )}
-            </Modal>
-          </>
-        );
+        return <PageContent />;
       }}
     />
   );

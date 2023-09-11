@@ -82,7 +82,7 @@ export default function StudentAuthPage() {
                     {user.icNumber}
                   </strong>
                 </div>
-                <div className="py-2 flex gap-5 justify-between">
+                <div className="border-b py-2 flex gap-5 justify-between">
                   <span className="text-sm text-slate-700">Supervisor</span>
                   <strong className="text-sm text-slate-700">
                     {user.supervisor ? (
@@ -96,6 +96,32 @@ export default function StudentAuthPage() {
                       </Tooltip>
                     ) : (
                       <span>Not yet assigned</span>
+                    )}
+                  </strong>
+                </div>
+                <div className="py-2 flex gap-5 justify-between">
+                  <span className="text-sm text-slate-700">
+                    Internship Status
+                  </span>
+                  <strong className="text-sm text-slate-700">
+                    {user.internship ? (
+                      <span
+                        className={clsx(
+                          user.internship.status === 'SUBMITTED'
+                            ? 'text-primary'
+                            : '',
+                          user.internship.status === 'REJECTED'
+                            ? 'text-red-500'
+                            : '',
+                          user.internship.status === 'APPROVED'
+                            ? 'text-green-500'
+                            : ''
+                        )}
+                      >
+                        {user.internship.status}
+                      </span>
+                    ) : (
+                      <span>Not yet submitted</span>
                     )}
                   </strong>
                 </div>
