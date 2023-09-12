@@ -12,6 +12,7 @@ interface Student {
   studentId: string;
   fullName: string;
   email: string;
+  downloadUrl?  : string;
 }
 
 interface DataType {
@@ -19,6 +20,7 @@ interface DataType {
   studentId: string;
   fullName: string;
   email: string;
+  downloadUrl?: string;
 }
 
 interface AssignStudentValues {
@@ -120,9 +122,9 @@ const AssignStudentForm = ({
                 input,
                 option:
                   | {
-                      children: string;
-                      value: string;
-                    }
+                    children: string;
+                    value: string;
+                  }
                   | undefined
               ) => {
                 if (!option) {
@@ -178,6 +180,27 @@ const PageContent = ({ user }: { user: SupervisorUser }) => {
       title: 'Email',
       dataIndex: 'email',
     },
+    {
+      title: 'Download Progress Report',
+      dataIndex: 'downloadUrl',
+      render: (downloadUrl) => {
+        if (downloadUrl) {
+          return (
+            <Button
+              type="primary"
+              size="middle"
+              href={downloadUrl}
+              className="bg-primary mt-5"
+            >
+              Download
+            </Button>
+          );
+        } else {
+          return <p className="text-gray-800">No file uploaded</p>;
+        }
+      },
+    },
+    
   ];
 
   const onChange: TableProps<DataType>['onChange'] = (
@@ -191,7 +214,7 @@ const PageContent = ({ user }: { user: SupervisorUser }) => {
 
   const [isAssignStudentModalOpen, setIsAssignStudentModalOpen] =
     useState(false);
-  const [assignedStudents, setAssignedStudents] = useState<Student[]>([]);
+    const [assignedStudents, setAssignedStudents] = useState<Student[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const showAssignStudentModal = () => {
@@ -221,6 +244,7 @@ const PageContent = ({ user }: { user: SupervisorUser }) => {
                   studentId: res.data.studentId,
                   fullName: res.data.fullName,
                   email: res.data.email,
+                  downloadUrl: res.data.downloadUrl,
                 },
               ]);
             } else {
@@ -255,7 +279,6 @@ const PageContent = ({ user }: { user: SupervisorUser }) => {
         }
 
         const students = response.data as Student[];
-
         setAssignedStudents(students);
       } catch (error) {
         console.log(error);
@@ -304,6 +327,7 @@ const PageContent = ({ user }: { user: SupervisorUser }) => {
           studentId: student.studentId,
           fullName: student.fullName,
           email: student.email,
+          downloadUrl: student.downloadUrl,
         }))}
         onChange={onChange}
         bordered

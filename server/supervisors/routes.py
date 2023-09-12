@@ -2,6 +2,8 @@ from flask import Blueprint, current_app, jsonify, make_response, request
 from flask_jwt_extended import create_access_token, unset_jwt_cookies
 import jwt
 import prisma
+import boto3
+from config import *
 from prisma.models import Supervisor, Student
 
 from auth_middleware import admin_token_required, supervisor_token_required
@@ -268,22 +270,53 @@ def getMyStudents(user):
             where={"supervisorEmail": user.email}, include={"supervisor": True}
         )
 
+        # Initialize an empty list to store student data
+        student_data = []
+
+        # Check S3 if file exists using head_object and generate presigned URL
+        s3 = boto3.client("s3")
+        for student in students:
+            file_exists = True
+            try:
+                s3.head_object(
+                    Bucket=custom_bucket,
+                    Key=f"progress-reports/progress-report-{student.studentId}.pdf",
+                )
+            except:
+                file_exists = False
+
+            if not file_exists:
+                downloadUrl = None
+            else:
+                # Generate presigned URL
+                presigned_url = s3.generate_presigned_url(
+                    "get_object",
+                    Params={
+                        "Bucket": custom_bucket,
+                        "Key": f"progress-reports/progress-report-{student.studentId}.pdf",
+                    },
+                    ExpiresIn=3600,
+                )
+                downloadUrl = presigned_url
+
+            student_data.append(
+                {
+                    "studentId": student.studentId,
+                    "email": student.email,
+                    "fullName": student.fullName,
+                    "icNumber": student.icNumber,
+                    "supervisor": {
+                        "email": student.supervisor.email,
+                        "fullName": student.supervisor.fullName,
+                    },
+                    "downloadUrl": downloadUrl,
+                }
+            )
+
         return jsonify(
             {
                 "message": "Students fetched successfully",
-                "data": [
-                    {
-                        "studentId": student.studentId,
-                        "email": student.email,
-                        "fullName": student.fullName,
-                        "icNumber": student.icNumber,
-                        "supervisor": {
-                            "email": student.supervisor.email,
-                            "fullName": student.supervisor.fullName,
-                        },
-                    }
-                    for student in students
-                ],
+                "data": student_data,
                 "success": True,
             }
         )
