@@ -36,6 +36,7 @@ model Company {
   isApproved  Boolean      @default(false)
   createdAt   DateTime     @default(now())
   internships Internship[]
+  jobs        Job[]
 }
 
 model Admin {
@@ -56,4 +57,15 @@ model Internship {
   studentId          String   @unique
   company            Company  @relation(fields: [companyId], references: [email])
   companyId          String
+}
+
+model Job {
+  jobId        String   @id
+  title        String  
+  description  String
+  location     String
+  salary       Float
+  postedAt     DateTime @default(now())
+  company      Company  @relation(fields: [comName], references: [email])
+  comName      String
 }
