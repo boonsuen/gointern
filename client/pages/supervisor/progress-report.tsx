@@ -8,17 +8,23 @@ import toast from 'react-hot-toast';
 import { PlusOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 
-interface Student {
+interface StudentUser {
   studentId: string;
   fullName: string;
-  email: string;
+  internship: {
+    status: 'SUBMITTED' | 'APPROVED' | 'REJECTED';
+  }
+  downloadUrl: string;
 }
 
 interface DataType {
   key: React.Key;
   studentId: string;
   fullName: string;
-  email: string;
+  internship: {
+    status: 'SUBMITTED' | 'APPROVED' | 'REJECTED';
+  }
+  downloadUrl: string;
 }
 
 export default function MyStudentsPage() {
@@ -33,8 +39,42 @@ export default function MyStudentsPage() {
       dataIndex: 'fullName',
     },
     {
-      title: 'View Progress Report',
-      dataIndex: 'email',
+      title: 'Progress Report Status',
+      dataIndex: ['internship', 'status'],
+      render: (status) => {
+        if(!status){
+          return <span className="text-yellow-500">Pending</span>;
+        }
+        if (status === 'APPROVED') {
+          return <span className="text-green-500">Approved</span>;
+        }
+
+        if (status === 'REJECTED') {
+          return <span className="text-red-500">Rejected</span>;
+        }   
+      },
+    },
+    {
+      title: 'Download Progress Report',
+      dataIndex: ['internship', 'status'],
+      render: (status, record) => {
+        if (status === 'APPROVED') {
+          return (
+            <Link
+              href={`${API_URL}/students/progress-report/${record.studentId}`}
+            >
+                Download
+            </Link>
+          );
+        }
+        else {
+          return (
+            <Link href={''}>
+              -
+            </Link>
+          )
+        }
+      },
     },
   ];
 
@@ -49,13 +89,14 @@ export default function MyStudentsPage() {
 
   const [isAssignStudentModalOpen, setIsAssignStudentModalOpen] =
     useState(false);
-  const [assignedStudents, setAssignedStudents] = useState<Student[]>([]);
+  const [assignedStudents, setAssignedStudents] = useState<StudentUser[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const showAssignStudentModal = () => {
     setIsAssignStudentModalOpen(true);
   };
 
+  
   useEffect(() => {
     const fetchAssignedStudents = async () => {
       try {
@@ -70,7 +111,7 @@ export default function MyStudentsPage() {
           return toast.error(response.message || 'Something went wrong');
         }
 
-        const students = response.data as Student[];
+        const students = response.data as StudentUser[];
 
         setAssignedStudents(students);
       } catch (error) {
@@ -121,7 +162,7 @@ export default function MyStudentsPage() {
                 key: student.studentId,
                 studentId: student.studentId,
                 fullName: student.fullName,
-                email: student.email,
+                internship: student.internship,
               }))}
               onChange={onChange}
               bordered
