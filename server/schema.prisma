@@ -55,17 +55,17 @@ model Internship {
   createdAt          DateTime @default(now())
   student            Student  @relation(fields: [studentId], references: [studentId])
   studentId          String   @unique
-  company            Company  @relation(fields: [companyId], references: [email])
-  companyId          String
+  company            Company  @relation(fields: [companyEmail], references: [email])
+  companyEmail       String
 }
 
 model Job {
-  jobId        String   @id
-  title        String  
+  jobId        String   @id @default(uuid())
+  title        String
   description  String
   location     String
   salary       Float
   postedAt     DateTime @default(now())
-  company      Company  @relation(fields: [comName], references: [email])
-  comName      String
+  company      Company  @relation(fields: [companyEmail], references: [email])
+  companyEmail String
 }

@@ -267,7 +267,8 @@ def assignStudent(user):
 def getMyStudents(user):
     try:
         students = Student.prisma().find_many(
-            where={"supervisorEmail": user.email}, include={"supervisor": True}
+            where={"supervisorEmail": user.email},
+            include={"supervisor": True, "internship": {"include": {"company": True}}},
         )
 
         # Initialize an empty list to store student data
@@ -299,6 +300,23 @@ def getMyStudents(user):
                 )
                 downloadUrl = presigned_url
 
+            internship = None
+            if student.internship is not None:
+                internship = {
+                    "id": student.internship.id,
+                    "status": student.internship.status,
+                    "company": {
+                        "companyName": student.internship.company.companyName,
+                        "email": student.internship.company.email,
+                    },
+                    "startDate": student.internship.startDate.isoformat(),
+                    "endDate": student.internship.endDate.isoformat(),
+                    "allowance": student.internship.allowance,
+                    "createdAt": student.internship.createdAt.isoformat(),
+                    "comSupervisorName": student.internship.comSupervisorName,
+                    "comSupervisorEmail": student.internship.comSupervisorEmail,
+                }
+
             student_data.append(
                 {
                     "studentId": student.studentId,
@@ -309,6 +327,7 @@ def getMyStudents(user):
                         "email": student.supervisor.email,
                         "fullName": student.supervisor.fullName,
                     },
+                    "internship": internship,
                     "downloadUrl": downloadUrl,
                 }
             )

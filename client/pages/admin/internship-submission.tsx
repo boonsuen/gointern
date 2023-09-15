@@ -261,13 +261,7 @@ const PageContent = () => {
 
   return (
     <>
-      <header
-        className={clsx(
-          'flex justify-between items-center',
-          'pb-4',
-          'border-b border-[#f0f0f0]'
-        )}
-      >
+      <header className={clsx('flex justify-between items-center', 'pb-4')}>
         <h1 className="text-xl font-semibold text-gray-800">
           Student Internship Submission
         </h1>

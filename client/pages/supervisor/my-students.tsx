@@ -12,7 +12,21 @@ interface Student {
   studentId: string;
   fullName: string;
   email: string;
-  downloadUrl?  : string;
+  internship: {
+    id: string;
+    startDate: string;
+    endDate: string;
+    allowance: number;
+    createdAt: string;
+    comSupervisorEmail: string;
+    comSupervisorName: string;
+    status: 'SUBMITTED' | 'APPROVED' | 'REJECTED';
+    company: {
+      companyName: string;
+      email: string;
+    };
+  } | null;
+  downloadUrl?: string;
 }
 
 interface DataType {
@@ -20,6 +34,20 @@ interface DataType {
   studentId: string;
   fullName: string;
   email: string;
+  internship: {
+    id: string;
+    startDate: string;
+    endDate: string;
+    allowance: number;
+    createdAt: string;
+    comSupervisorEmail: string;
+    comSupervisorName: string;
+    status: 'SUBMITTED' | 'APPROVED' | 'REJECTED';
+    company: {
+      companyName: string;
+      email: string;
+    };
+  } | null;
   downloadUrl?: string;
 }
 
@@ -122,9 +150,9 @@ const AssignStudentForm = ({
                 input,
                 option:
                   | {
-                    children: string;
-                    value: string;
-                  }
+                      children: string;
+                      value: string;
+                    }
                   | undefined
               ) => {
                 if (!option) {
@@ -181,26 +209,49 @@ const PageContent = ({ user }: { user: SupervisorUser }) => {
       dataIndex: 'email',
     },
     {
-      title: 'Download Progress Report',
+      title: 'Internship Status',
+      dataIndex: ['internship', 'status'],
+      render: (value) => {
+        switch (value) {
+          case 'SUBMITTED':
+            return (
+              <span className="text-yellow-500 font-semibold">Submitted</span>
+            );
+          case 'APPROVED':
+            return (
+              <span className="text-green-500 font-semibold">Approved</span>
+            );
+          case 'REJECTED':
+            return <span className="text-red-500 font-semibold">Rejected</span>;
+          default:
+            return (
+              <span className="text-gray-500 font-semibold">Not Submitted</span>
+            );
+        }
+      },
+    },
+    {
+      title: 'Progress Report',
       dataIndex: 'downloadUrl',
-      render: (downloadUrl) => {
+      render: (downloadUrl, record) => {
         if (downloadUrl) {
           return (
             <Button
               type="primary"
               size="middle"
               href={downloadUrl}
-              className="bg-primary mt-5"
+              className="bg-primary"
             >
               Download
             </Button>
           );
-        } else {
+        } else if (record.internship?.status === 'APPROVED') {
           return <p className="text-gray-800">No file uploaded</p>;
+        } else {
+          return <p className="text-gray-800">-</p>;
         }
       },
     },
-    
   ];
 
   const onChange: TableProps<DataType>['onChange'] = (
@@ -214,7 +265,7 @@ const PageContent = ({ user }: { user: SupervisorUser }) => {
 
   const [isAssignStudentModalOpen, setIsAssignStudentModalOpen] =
     useState(false);
-    const [assignedStudents, setAssignedStudents] = useState<Student[]>([]);
+  const [assignedStudents, setAssignedStudents] = useState<Student[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const showAssignStudentModal = () => {
@@ -327,6 +378,7 @@ const PageContent = ({ user }: { user: SupervisorUser }) => {
           studentId: student.studentId,
           fullName: student.fullName,
           email: student.email,
+          internship: student.internship,
           downloadUrl: student.downloadUrl,
         }))}
         onChange={onChange}
