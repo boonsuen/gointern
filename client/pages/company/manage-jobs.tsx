@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { API_URL } from '@/lib/constants';
 import type { ColumnsType, TableProps } from 'antd/es/table';
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Modal, Spin, Table } from 'antd';
+import { Button, Form, Input, InputNumber, Modal, Spin, Table } from 'antd';
 
 interface Job{
     title: string;
@@ -19,7 +19,7 @@ interface DataType {
     title: string;
     location: string;
     salary: string;
-    desc: string;
+    description: string;
   }
 
 interface AddJobValues {
@@ -106,7 +106,7 @@ const AddJobForm = ({
                 initialValues={{}}
                 >
                     <Form.Item
-                        name="jobTitle"
+                        name="title"
                         label="Job Title"
                         rules={[
                             {
@@ -139,7 +139,7 @@ const AddJobForm = ({
                             },
                         ]}
                     >
-                        <Input />
+                        <InputNumber className="w-full" max={10000} min={0} />
                     </Form.Item>
                     <Form.Item
                         name="description"
@@ -176,7 +176,7 @@ const PageContent = () => {
         },
         {
             title: 'Description',
-            dataIndex: 'desc',
+            dataIndex: 'description',
         },
     ];
 
@@ -200,6 +200,7 @@ const PageContent = () => {
 
     const onAdd = async (values: AddJobValues) => {
         try{
+            console.log(values);
             toast.promise(
                 fetch(`${API_URL}/companies/jobs`, {
                     method: 'POST',
@@ -209,6 +210,9 @@ const PageContent = () => {
                     },
                     body: JSON.stringify({
                       title: values.title,
+                      location: values.location,
+                      salary: values.salary,
+                      description: values.description
                     }),
                   })
                     .then((res) => res.json())
@@ -304,7 +308,7 @@ const PageContent = () => {
               title: job.title,
               location: job.location,
               salary: job.salary,
-              desc: job.description,
+              description: job.description,
             }))}
             onChange={onChange}
             bordered

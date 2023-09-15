@@ -2,9 +2,11 @@ from flask import Blueprint, current_app, jsonify, make_response, request
 from flask_jwt_extended import create_access_token, unset_jwt_cookies
 import jwt
 import prisma
-from prisma.models import Company
+import boto3
+from config import *
+from prisma.models import Company, Job
 
-from auth_middleware import admin_token_required
+from auth_middleware import admin_token_required, company_token_required
 
 companies = Blueprint("companies", __name__)
 
@@ -213,3 +215,72 @@ def getApprovedCompanies():
         )
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500
+
+@companies.route("/jobs", methods=["POST"])
+@company_token_required
+def addJob(company):
+    data = request.json
+
+    title = data.get("title")
+    location = data.get("location")
+    salary = data.get("salary")
+    description = data.get("description")
+
+    job = Job.prisma().create(
+        data={
+            "company": {"connect": {"email": company.email}},
+            "title": title,
+            "location": location,
+            "salary": salary,
+            "description": description,
+        }
+    )
+
+    return jsonify(
+        {
+            "message": "Job added successfully",
+            "data":
+                    {
+                        "jobId": job.jobId,
+                        "title": job.title,
+                        "location": job.location,
+                        "salary": job.salary,
+                        "description": job.description,
+                    },
+            "success": True,
+        }
+    )
+
+@companies.route("/jobs", methods=["GET"])
+@company_token_required
+def getJobs(company):
+    try:
+        jobs = Job.prisma().find_many(
+            where={"companyEmail": company.email}, include={"company": True}
+        )
+
+        return jsonify(
+            {
+                "message": "Jobs fetched successfully",
+                "data": [
+                    {
+                        "jobId": job.jobId,
+                        "title": job.title,
+                        "location": job.location,
+                        "salary": job.salary,
+                        "description": job.description,
+                    }
+                    for job in jobs
+                ],
+                "success": True,
+            }
+        )
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+        
+
+
+
+
+        
+
