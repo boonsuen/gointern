@@ -295,6 +295,7 @@ const PageContent = ({ user }: { user: SupervisorUser }) => {
                   studentId: res.data.studentId,
                   fullName: res.data.fullName,
                   email: res.data.email,
+                  internship: res.data.internship,
                   downloadUrl: res.data.downloadUrl,
                 },
               ]);
