@@ -373,6 +373,7 @@ const PageContent = ({ user }: { user: SupervisorUser }) => {
       </div>
       <Table
         loading={isLoading}
+        scroll={{ x: 900 }}
         columns={columns}
         dataSource={assignedStudents.map((student) => ({
           key: student.studentId,
