@@ -91,7 +91,6 @@ const menuItems: MenuItem[] = [
   getItem('Supervisor', '/supervisor', <TeamOutlined />, [
     getItem('Login / Signup', '/supervisor/auth'),
     getItem('My Students', '/supervisor/my-students'),
-    getItem('Progress Report', '/supervisor/progress-report'),
   ]),
   getItem('Company', '/company', <FlagOutlined />, [
     getItem('Login / Signup', '/company/auth'),
