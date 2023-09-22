@@ -1,5 +1,5 @@
 import Layout from '@/components/layout/Layout';
-import { Card, Space } from 'antd';
+import { Card, Space, Spin } from 'antd';
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 import { Announcement } from './admin/manage-announcement';
@@ -38,27 +38,33 @@ export default function AnnouncementPage() {
 
   return (
     <Layout defaultOpenKey="/announcement" selectedKey="/announcement">
-      <header
-        className={clsx(
-          'flex justify-between items-center',
-          'pb-4',
-          'border-b border-[#f0f0f0]'
-        )}
-      >
-        <h1 className="text-xl font-semibold text-gray-800">Announcement</h1>
-      </header>
-      <div className="mt-8">
-        {isLoading ? (
-          <div>Loading...</div>
-        ) : (
-          <div className="w-full grid gap-4">
+      {isLoading ? (
+        <div className={clsx('flex justify-center items-center h-full')}>
+          <Spin />
+        </div>
+      ) : (
+        <>
+          <header
+            className={clsx(
+              'flex justify-between items-center',
+              'pb-4',
+              'border-b border-[#f0f0f0]'
+            )}
+          >
+            <h1 className="text-xl font-semibold text-gray-800">
+              Announcement
+            </h1>
+          </header>
+          <div className="mt-8 grid gap-4">
             {announcements.map((announcement) => (
               <Card
                 key={announcement.id}
                 title={announcement.title}
                 extra={
                   <Space>
-                    <span>{new Date(announcement.postedAt).toLocaleString()}</span>
+                    <span>
+                      {new Date(announcement.postedAt).toLocaleString()}
+                    </span>
                   </Space>
                 }
                 style={{ width: '100%' }}
@@ -67,8 +73,8 @@ export default function AnnouncementPage() {
               </Card>
             ))}
           </div>
-        )}
-      </div>
+        </>
+      )}
     </Layout>
   );
 }

@@ -332,7 +332,7 @@ const PageContent = () => {
   };
 
   useEffect(() => {
-    const fetchAddedAnnouncements = async () => {
+    const fetchAnnouncements = async () => {
       try {
         const response = await (
           await fetch(`${API_URL}/admins/announcements`, {
@@ -354,7 +354,7 @@ const PageContent = () => {
       }
     };
 
-    fetchAddedAnnouncements();
+    fetchAnnouncements();
   }, []);
 
   const handleDelete = async (id: string) => {
