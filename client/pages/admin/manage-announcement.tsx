@@ -7,7 +7,7 @@ import type { ColumnsType, TableProps } from 'antd/es/table';
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Modal, Space, Table } from 'antd';
 
-interface Announcement {
+export interface Announcement {
   id: string;
   title: string;
   content: string;
@@ -52,6 +52,9 @@ const AddAnnouncementForm = ({
           })
           .catch((info) => {
             console.log('Validate Failed:', info);
+          })
+          .finally(() => {
+            form.resetFields();
           });
       }}
       okButtonProps={{
@@ -97,6 +100,139 @@ const AddAnnouncementForm = ({
   );
 };
 
+interface EditAnnouncementValues {
+  title: string;
+  content: string;
+}
+
+interface EditAnnouncementFormProps {
+  announcement: Announcement;
+  setAnnouncements: React.Dispatch<React.SetStateAction<Announcement[]>>;
+}
+
+const EditAnnouncementForm = ({
+  announcement,
+  setAnnouncements,
+}: EditAnnouncementFormProps) => {
+  const [form] = Form.useForm();
+  const [isEditModalVisible, setIsEditModalVisible] = useState<boolean>(false);
+
+  const onEdit = async (values: EditAnnouncementValues) => {
+    try {
+      toast.promise(
+        fetch(`${API_URL}/admins/announcements`, {
+          method: 'PUT',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: announcement.id,
+            title: values.title,
+            content: values.content,
+          }),
+        })
+          .then((res) => res.json())
+          .then((res) => {
+            if (res.success) {
+              setAnnouncements((prev) =>
+                prev.map((a) =>
+                  a.id === announcement.id
+                    ? {
+                        ...a,
+                        title: values.title,
+                        content: values.content,
+                      }
+                    : a
+                )
+              );
+            }
+          }),
+        {
+          loading: 'Updating...',
+          success: 'Updated successfully',
+          error: 'Failed to update',
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsEditModalVisible(false);
+    }
+  };
+
+  return (
+    <>
+      <button
+        onClick={() => {
+          setIsEditModalVisible(true);
+        }}
+        className="text-primary whitespace-nowrap hover:text-[#69b1ff] transition-colors"
+      >
+        Edit
+      </button>
+      <Modal
+        title="Edit Announcement"
+        open={isEditModalVisible}
+        onOk={() => {
+          form
+            .validateFields()
+            .then((values) => {
+              onEdit(values);
+            })
+            .catch((info) => {
+              console.log('Validate Failed:', info);
+            });
+        }}
+        okButtonProps={{
+          htmlType: 'submit',
+          className: 'bg-primary',
+        }}
+        okText="Update"
+        onCancel={() => {
+          setIsEditModalVisible(false);
+        }}
+      >
+        <Form
+          className="mt-4"
+          form={form}
+          layout="vertical"
+          name="editAnnouncementForm"
+          initialValues={{
+            title: announcement.title,
+            content: announcement.content,
+          }}
+        >
+          <Form.Item
+            name="title"
+            label="Title"
+            rules={[
+              {
+                required: true,
+                message: 'Please enter title',
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="content"
+            label="Content"
+            rules={[
+              {
+                required: true,
+                message: 'Please enter content',
+              },
+            ]}
+          >
+            <Input.TextArea />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </>
+  );
+};
+
 const PageContent = () => {
   const columns: ColumnsType<DataType> = [
     {
@@ -118,19 +254,10 @@ const PageContent = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="middle">
-          {/* <button
-            onClick={() => {
-              setSelectedSupervisor(
-                supervisors.find(
-                  (supervisor) => supervisor.email === record.email
-                ) || null
-              );
-              setIsModalVisible(true);
-            }}
-            className="text-primary whitespace-nowrap hover:text-[#69b1ff] transition-colors"
-          >
-            Edit
-          </button> */}
+          <EditAnnouncementForm
+            announcement={record}
+            setAnnouncements={setAnnouncements}
+          />
           <button
             onClick={() => handleDelete(record.id)}
             className="text-primary hover:text-[#69b1ff] transition-colors"
@@ -179,13 +306,13 @@ const PageContent = () => {
             if (res.success) {
               console.log(res);
               setAnnouncements((prev) => [
-                ...prev,
                 {
                   id: res.data.id,
                   title: res.data.title,
                   content: res.data.content,
                   postedAt: res.data.postedAt,
                 },
+                ...prev,
               ]);
             } else {
               throw new Error(res.message || 'Something went wrong');

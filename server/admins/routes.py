@@ -348,3 +348,42 @@ def deleteAnnouncement(user):
         )
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500
+
+
+@admins.route("/announcements", methods=["PUT"])
+@admin_token_required
+def updateAnnouncement(user):
+    try:
+        data = request.json
+
+        if data is None:
+            return
+
+        id = data.get("id")
+        title = data.get("title")
+        content = data.get("content")
+
+        if id is None:
+            return {"message": "Missing required fields", "success": False}
+
+        announcement = Announcement.prisma().find_unique(where={"id": id})
+
+        if announcement is None:
+            return {"message": "Announcement not found", "success": False}
+
+        Announcement.prisma().update(
+            where={"id": id},
+            data={
+                "title": title,
+                "content": content,
+            },
+        )
+
+        return jsonify(
+            {
+                "message": "Announcement updated successfully",
+                "success": True,
+            }
+        )
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
