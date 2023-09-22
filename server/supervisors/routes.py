@@ -341,5 +341,3 @@ def getMyStudents(user):
         )
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500
-
-

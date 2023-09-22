@@ -40,8 +40,9 @@ model Company {
 }
 
 model Admin {
-  email    String @unique
-  password String
+  email        String         @unique
+  password     String
+  annoucements Announcement[]
 }
 
 model Internship {
@@ -71,8 +72,10 @@ model Job {
 }
 
 model Announcement {
-  announcementId    String   @id @default(uuid())
-  title             String
-  content           String
-  postedAt          DateTime @default(now())
+  id         String   @id @default(uuid())
+  title      String
+  content    String
+  postedAt   DateTime @default(now())
+  admin      Admin    @relation(fields: [adminEmail], references: [email])
+  adminEmail String
 }

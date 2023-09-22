@@ -117,6 +117,7 @@ def student_token_required(f):
 
     return decorated
 
+
 def company_token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -135,9 +136,7 @@ def company_token_required(f):
             decoded = jwt.decode(
                 token, current_app.config["JWT_SECRET_KEY"], algorithms=["HS256"]
             )
-            user = Company.prisma().find_unique(
-                where={"email": decoded["sub"]}
-            )
+            user = Company.prisma().find_unique(where={"email": decoded["sub"]})
             if user is None:
                 return {
                     "message": "Unauthorized company",

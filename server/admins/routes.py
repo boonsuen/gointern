@@ -2,7 +2,7 @@ from flask import Blueprint, current_app, jsonify, make_response, request
 from flask_jwt_extended import create_access_token, unset_jwt_cookies
 import jwt
 import prisma
-from prisma.models import Admin, Student, Internship, Company
+from prisma.models import Admin, Student, Internship, Company, Announcement
 
 from auth_middleware import admin_token_required
 
@@ -231,6 +231,7 @@ def rejectInternship(user):
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500
 
+
 @admins.route("/companies", methods=["GET"])
 @admin_token_required
 def getCompanies(user):
@@ -248,6 +249,100 @@ def getCompanies(user):
                     }
                     for company in companies
                 ],
+                "success": True,
+            }
+        )
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+
+
+@admins.route("/announcements", methods=["GET"])
+def getAnnouncements():
+    try:
+        announcements = Announcement.prisma().find_many(order={"postedAt": "desc"})
+        return jsonify(
+            {
+                "message": "Announcement fetched successfully",
+                "data": [
+                    {
+                        "id": announcement.id,
+                        "title": announcement.title,
+                        "content": announcement.content,
+                        "postedAt": announcement.postedAt.isoformat(),
+                    }
+                    for announcement in announcements
+                ],
+                "success": True,
+            }
+        )
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+
+
+@admins.route("/announcements", methods=["POST"])
+@admin_token_required
+def createAnnouncement(user):
+    try:
+        data = request.json
+
+        if data is None:
+            return
+
+        title = data.get("title")
+        content = data.get("content")
+
+        if title is None or content is None:
+            return {"message": "Missing required fields", "success": False}
+
+        announcement = Announcement.prisma().create(
+            data={
+                "title": title,
+                "content": content,
+                "admin": {"connect": {"email": user.email}},
+            }
+        )
+
+        return jsonify(
+            {
+                "message": "Announcement created successfully",
+                "data": {
+                    "id": announcement.id,
+                    "title": announcement.title,
+                    "content": announcement.content,
+                    "postedAt": announcement.postedAt.isoformat(),
+                },
+                "success": True,
+            }
+        )
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+
+
+# Delete Announcement
+@admins.route("/announcements", methods=["DELETE"])
+@admin_token_required
+def deleteAnnouncement(user):
+    try:
+        data = request.json
+
+        if data is None:
+            return
+
+        id = data.get("id")
+
+        if id is None:
+            return {"message": "Missing required fields", "success": False}
+
+        announcement = Announcement.prisma().find_unique(where={"id": id})
+
+        if announcement is None:
+            return {"message": "Announcement not found", "success": False}
+
+        Announcement.prisma().delete(where={"id": id})
+
+        return jsonify(
+            {
+                "message": "Announcement deleted successfully",
                 "success": True,
             }
         )
