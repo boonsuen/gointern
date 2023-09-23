@@ -7,11 +7,15 @@ import type { ColumnsType, TableProps } from 'antd/es/table';
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, Form, Input, InputNumber, Modal, Spin, Table } from 'antd';
 
-interface Job{
+export interface Job{
+    id: string;
     title: string;
     location: string;
     salary: string;
     description: string;
+    postedAt: string;
+    companyEmail: string;
+    company: string;
 }
 
 interface DataType {
@@ -222,10 +226,14 @@ const PageContent = () => {
                         setAddedJobs((prev) => [
                           ...prev,
                           {
+                            id: res.data.id,
                             title: res.data.title,
                             location: res.data.location,
                             salary: res.data.salary,
-                            description: res.data.description
+                            description: res.data.description,
+                            postedAt: res.data.postedAt,
+                            companyEmail: res.data.companyEmail,
+                            company: res.data.company
                           },
                         ]);
                       } else {
@@ -280,7 +288,7 @@ const PageContent = () => {
               'border-b border-[#f0f0f0]'
             )}
           >
-            <h1 className="text-xl font-semibold text-gray-800">Manege Jobs</h1>
+            <h1 className="text-xl font-semibold text-gray-800">Manage Jobs</h1>
           </header>
           <div className="flex justify-end">
             <Button

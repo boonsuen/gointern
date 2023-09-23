@@ -277,6 +277,34 @@ def getJobs(company):
         )
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500
+    
+@companies.route("/jobboard", methods=["GET"])
+def retriveJobs():
+    try:
+        jobs = Job.prisma().find_many(order={"postedAt": "desc"})
+
+        return jsonify(
+            {
+                "message": "Announcement fetched successfully",
+                "data": [
+                    {
+                        "jobId": job.jobId,
+                        "title": job.title,
+                        "location": job.location,
+                        "salary": job.salary,
+                        "description": job.description,
+                        "postedAt": job.postedAt.isoformat(),
+                        "companyEmail": job.companyEmail,
+                        "company": job.company,
+                    }
+                    for job in jobs
+                ],
+                "success": True,
+            }
+        )
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+
         
 
 
