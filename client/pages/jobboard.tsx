@@ -60,7 +60,7 @@ useEffect(() => {
               {jobs.map((job) => (
                 <Card
                   key={job.id}
-                  title={job.title}
+                  title={<span className="text-lg font-semibold text-gray-800">{job.title}</span>}
                   extra={
                     <Space>
                       <span>
@@ -70,11 +70,12 @@ useEffect(() => {
                   }
                   style={{ width: '100%' }}
                 >
+                  <h3><span className="text-lg font-semibold text-gray-800">Company: </span>{job.company}</h3>
+                  <br/>
                   <h2><span className="text-md font-semibold text-gray-800">Location: </span>{job.location}</h2>
                   <h2><span className="text-md font-semibold text-gray-800">Salary: </span>{job.salary}</h2>
                   <h2><span className="text-md font-semibold text-gray-800">Job Description: </span>{job.description}</h2>
                   <h2><span className="text-md font-semibold text-gray-800">Contact Us: </span>{job.companyEmail}</h2>
-                  <h2>{job.company}</h2>
                 </Card>
               ))}
             </div>

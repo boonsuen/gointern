@@ -281,11 +281,11 @@ def getJobs(company):
 @companies.route("/jobboard", methods=["GET"])
 def retriveJobs():
     try:
-        jobs = Job.prisma().find_many(order={"postedAt": "desc"})
+        jobs = Job.prisma().find_many(order={"postedAt": "desc"}, include={"company": True})
 
         return jsonify(
             {
-                "message": "Announcement fetched successfully",
+                "message": "Job fetched successfully",
                 "data": [
                     {
                         "jobId": job.jobId,
@@ -295,7 +295,7 @@ def retriveJobs():
                         "description": job.description,
                         "postedAt": job.postedAt.isoformat(),
                         "companyEmail": job.companyEmail,
-                        "company": job.company,
+                        "company": job.company.companyName
                     }
                     for job in jobs
                 ],
