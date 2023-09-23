@@ -56,7 +56,7 @@ useEffect(() => {
                 Job Board
               </h1>
             </header>
-            <div className="mt-8 grid gap-4">
+            <div className="mt-8 grid lg:grid-cols-2 gap-4">
               {jobs.map((job) => (
                 <Card
                   key={job.id}
