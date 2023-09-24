@@ -216,41 +216,53 @@ def getApprovedCompanies():
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500
 
+# ----- Job -----
+# Add Job
 @companies.route("/jobs", methods=["POST"])
 @company_token_required
 def addJob(company):
-    data = request.json
+    try:
+        data = request.json
 
-    title = data.get("title")
-    location = data.get("location")
-    salary = data.get("salary")
-    description = data.get("description")
+        if data is None:
+            return
 
-    job = Job.prisma().create(
-        data={
-            "company": {"connect": {"email": company.email}},
-            "title": title,
-            "location": location,
-            "salary": salary,
-            "description": description,
-        }
-    )
+        title = data.get("title")
+        location = data.get("location")
+        salary = data.get("salary")
+        description = data.get("description")
 
-    return jsonify(
-        {
-            "message": "Job added successfully",
-            "data":
-                    {
+        if title is None or location is None or salary is None or description is None:
+            return {"message": "Missing required fields", "success": False}
+
+        job = Job.prisma().create(
+            data={
+                "company": {"connect": {"email": company.email}},
+                "title": title,
+                "location": location,
+                "salary": salary,
+                "description": description,
+            }
+        )
+
+        return jsonify(
+            {
+                "message": "Job added successfully",
+                "data":{
                         "jobId": job.jobId,
                         "title": job.title,
                         "location": job.location,
                         "salary": job.salary,
                         "description": job.description,
-                    },
-            "success": True,
-        }
-    )
+                },
+                "success": True,
+            }
+        )
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
 
+
+# Read Job
 @companies.route("/jobs", methods=["GET"])
 @company_token_required
 def getJobs(company):
@@ -277,7 +289,83 @@ def getJobs(company):
         )
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500
-    
+
+# Delete Job
+@companies.route("/jobs", methods=["DELETE"])
+@company_token_required
+def deleteJob(company):
+    try:
+        data = request.json
+
+        if data is None:
+            return
+
+        id = data.get("jobId")
+
+        if id is None:
+            return {"message": "Missing required fields", "success": False}
+
+        job = Job.prisma().find_unique(where={"jobId": id}, include={"company": True})
+
+        if job is None:
+            return {"message": "Job not found", "success": False}
+
+        Job.prisma().delete(where={"jobId": id})
+
+        return jsonify(
+            {
+                "message": "Job deleted successfully",
+                "success": True,
+            }
+        )
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+
+# Update Job
+@companies.route("/jobs", methods=["PUT"])
+@company_token_required
+def updateJob(company):
+    try:
+        data = request.json
+
+        if data is None:
+            return
+
+        jobId = data.get("jobId")
+        title = data.get("title")
+        location = data.get("location")
+        salary = data.get("salary")
+        description = data.get("description")
+
+        if jobId is None:
+            return {"message": "Missing required fields", "success": False}
+
+        job = Job.prisma().find_unique(where={"jobId": jobId})
+        print(jobId)
+
+        if job is None:
+            return {"message": "Job not found", "success": False}
+
+        Job.prisma().update(
+            where={"jobId": jobId},
+            data={
+                "title": title,
+                "location": location,
+                "salary": salary,
+                "description": description,
+            },
+        )
+
+        return jsonify(
+            {
+                "message": "Job updated successfully",
+                "success": True,
+            }
+        )
+    except Exception as e:
+        return jsonify({"message": str(e), "success": False}), 500
+
+# ----- Jobboard -----
 @companies.route("/jobboard", methods=["GET"])
 def retriveJobs():
     try:
