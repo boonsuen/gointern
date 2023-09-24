@@ -13,6 +13,9 @@ export interface Job {
     location: string;
     salary: string;
     description: string;
+    postedAt: string;
+    company: string;
+    companyEmail: string;
 }
 
 interface DataType {
@@ -22,6 +25,9 @@ interface DataType {
     location: string;
     salary: string;
     description: string;
+    postedAt: string;
+    company: string;
+    companyEmail: string;
 }
 
 interface AddJobValues {
@@ -376,6 +382,9 @@ const PageContent = () => {
                                     location: res.data.location,
                                     salary: res.data.salary,
                                     description: res.data.description,
+                                    postedAt: res.data.postedAt,
+                                    company: res.data.company,
+                                    companyEmail: res.data.companyEmail,
                                 },
                                 ...prev,
                             ]);
@@ -491,6 +500,9 @@ const PageContent = () => {
                     location: job.location,
                     salary: job.salary,
                     description: job.description,
+                    postedAt: job.postedAt,
+                    company: job.company,
+                    companyEmail: job.companyEmail,
                 }))}
                 onChange={onChange}
                 bordered

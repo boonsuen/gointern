@@ -59,7 +59,7 @@ useEffect(() => {
             <div className="mt-8 grid lg:grid-cols-2 gap-4">
               {jobs.map((job) => (
                 <Card
-                  key={job.id}
+                  key={job.jobId}
                   title={<span className="text-lg font-semibold text-gray-800">{job.title}</span>}
                   extra={
                     <Space>

@@ -341,7 +341,6 @@ def updateJob(company):
             return {"message": "Missing required fields", "success": False}
 
         job = Job.prisma().find_unique(where={"jobId": jobId})
-        print(jobId)
 
         if job is None:
             return {"message": "Job not found", "success": False}
